@@ -9,6 +9,8 @@ How?
 - See trips from friends
 	- See where they want/get recommendations from where they went when planning trips
 
+Wireframe:
+http://i.imgur.com/E2FOUZ7.jpg
 **User Stories**
 
 *Trip View:*
