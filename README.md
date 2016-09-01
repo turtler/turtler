@@ -11,6 +11,7 @@ How?
 
 Wireframe:
 http://i.imgur.com/E2FOUZ7.jpg
+
 **User Stories**
 
 *Trip View:*
