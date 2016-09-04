@@ -27,7 +27,7 @@ import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.utils.BitmapScaler;
 
-public class MainActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
     public final String APP_TAG = "VoyageurApp";
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
@@ -46,8 +46,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch(item.getItemId()){
+                    case R.id.item_menu_home:
+                        Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+                        startActivity(homeIntent);
+                        return true;
                     case R.id.item_menu_camera:
                         showCameraOptions();
+                        return true;
+                    case R.id.item_menu_profile:
+                        Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
+                        startActivity(profileIntent);
                         return true;
                     default:
                         return false;
@@ -62,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.bottom_nav_bar, menu);
         return true;
     }
-
 
     public void showCameraOptions() {
         View v = findViewById(R.id.item_menu_camera);
