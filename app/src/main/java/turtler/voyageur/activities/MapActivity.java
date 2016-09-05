@@ -43,6 +43,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.SaveCallback;
+
+import java.util.Collections;
+import java.util.List;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
@@ -79,12 +87,32 @@ public class MapActivity extends AppCompatActivity implements
                 @Override
                 public void onMapReady(GoogleMap map) {
                     loadMap(map);
+                    final GoogleMap gmap = map;
+                    ParseQuery<turtler.voyageur.models.Marker> query = ParseQuery.getQuery("Marker");
+                    query.findInBackground(new FindCallback<turtler.voyageur.models.Marker>() {
+                        public void done(List<turtler.voyageur.models.Marker> markers, ParseException e) {
+                            if (e == null) {
+                                for (int i = 0; i < markers.size(); i++) {
+                                    turtler.voyageur.models.Marker m = (turtler.voyageur.models.Marker) markers.get(i);
+                                    BitmapDescriptor defaultMarker =
+                                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                                    LatLng point = new LatLng(m.getLatitudeKey(), m.getLongitudeKey());
+                                    Marker marker = gmap.addMarker(new MarkerOptions()
+                                            .position(point)
+                                            .icon(defaultMarker));
+                                    rectOptions.add(new LatLng(point.latitude, point.longitude));
+                                    Polyline polyline = gmap.addPolyline(rectOptions);
+                                }
+                            } else {
+                                Log.e("message", "Error Loading Messages" + e);
+                            }
+                        }
+                    });
                 }
             });
         } else {
             Toast.makeText(this, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     protected void loadMap(GoogleMap googleMap) {
@@ -188,7 +216,6 @@ public class MapActivity extends AppCompatActivity implements
                 errorFragment.setDialog(errorDialog);
                 errorFragment.show(getSupportFragmentManager(), "Location Updates");
             }
-
             return false;
         }
     }
@@ -338,7 +365,24 @@ public class MapActivity extends AppCompatActivity implements
                                 .snippet(snippet)
                                 .icon(defaultMarker));
 
+                        ParseObject parseMarker = ParseObject.create("Marker");
+                        parseMarker.put("latitude", point.latitude);
+                        parseMarker.put("longitude", point.longitude);
+                        parseMarker.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    Toast.makeText(MapActivity.this, "Successfully saved marker on Parse",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.e("ERROR", "Failed to save marker", e);
+                                }
+
+                            }
+                        });
+
                         dropPinEffect(marker);
+
                         rectOptions.add(new LatLng(point.latitude, point.longitude));
                         Polyline polyline = map.addPolyline(rectOptions);
                     }

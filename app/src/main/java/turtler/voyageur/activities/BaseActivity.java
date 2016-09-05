@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.parse.Parse;
+import com.parse.ParseObject;
 import com.parse.interceptors.ParseLogInterceptor;
 
 import java.io.ByteArrayOutputStream;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
+import turtler.voyageur.models.Marker;
 import turtler.voyageur.utils.BitmapScaler;
 
 public class BaseActivity extends AppCompatActivity {
@@ -44,6 +46,7 @@ public class BaseActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
+        ParseObject.registerSubclass(Marker.class);
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("voyaging") // should correspond to APP_ID env variable
                 .clientKey("sayheyhey")  // set explicitly unless clientKey is explicitly configured on Parse server
