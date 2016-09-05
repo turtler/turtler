@@ -57,7 +57,7 @@ public class BaseActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch(item.getItemId()){
-                      case R.id.item_menu_home:
+                    case R.id.item_menu_home:
                         Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
                         startActivity(homeIntent);
                         return true;
