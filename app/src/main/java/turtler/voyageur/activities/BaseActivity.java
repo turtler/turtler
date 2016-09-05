@@ -17,6 +17,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.parse.Parse;
+import com.parse.interceptors.ParseLogInterceptor;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,12 +44,17 @@ public class BaseActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
+        Parse.initialize(new Parse.Configuration.Builder(this)
+                .applicationId("voyaging") // should correspond to APP_ID env variable
+                .clientKey("sayheyhey")  // set explicitly unless clientKey is explicitly configured on Parse server
+                .addNetworkInterceptor(new ParseLogInterceptor())
+                .server("https://voyaging.herokuapp.com/parse/").build());
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch(item.getItemId()){
-                    case R.id.item_menu_home:
+                      case R.id.item_menu_home:
                         Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
                         startActivity(homeIntent);
                         return true;
@@ -56,6 +64,10 @@ public class BaseActivity extends AppCompatActivity {
                     case R.id.item_menu_profile:
                         Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
                         startActivity(profileIntent);
+                        return true;
+                    case R.id.item_menu_map:
+                        Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
+                        startActivity(mapIntent);
                         return true;
                     default:
                         return false;
