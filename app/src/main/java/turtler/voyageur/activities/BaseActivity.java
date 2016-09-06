@@ -17,8 +17,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
 import com.parse.Parse;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 import com.parse.interceptors.ParseLogInterceptor;
 
 import java.io.ByteArrayOutputStream;
@@ -30,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.models.Marker;
+import turtler.voyageur.models.User;
 import turtler.voyageur.utils.BitmapScaler;
 
 public class BaseActivity extends AppCompatActivity {
@@ -41,23 +45,36 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         setSupportActionBar(toolbar);
         ParseObject.registerSubclass(Marker.class);
+        ParseObject.registerSubclass(User.class);
+
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("voyaging") // should correspond to APP_ID env variable
                 .clientKey("sayheyhey")  // set explicitly unless clientKey is explicitly configured on Parse server
                 .addNetworkInterceptor(new ParseLogInterceptor())
                 .server("https://voyaging.herokuapp.com/parse/").build());
 
+        FacebookSdk.sdkInitialize(this);
+        ParseFacebookUtils.initialize(this);
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            // do stuff with the user
+        } else {
+            Intent i = new Intent(BaseActivity.this, LoginActivity.class);
+            startActivity(i);
+        }
+
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch(item.getItemId()){
-                      case R.id.item_menu_home:
+                    case R.id.item_menu_home:
                         Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
                         startActivity(homeIntent);
                         return true;

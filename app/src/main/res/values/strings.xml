@@ -4,4 +4,6 @@
     <string name="camera">Camera</string>
     <string name="profile">Profile</string>
     <string name="map">Map</string>
+    <string name="btn_connect_fb">Login with Facebook</string>
+    <string name="facebook_app_id">1764616527149320</string>
 </resources>
