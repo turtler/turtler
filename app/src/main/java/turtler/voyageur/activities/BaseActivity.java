@@ -17,8 +17,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseObject;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
 import com.parse.interceptors.ParseLogInterceptor;
 
 import java.io.ByteArrayOutputStream;
@@ -41,10 +44,10 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         setSupportActionBar(toolbar);
         ParseObject.registerSubclass(Marker.class);
         Parse.initialize(new Parse.Configuration.Builder(this)
@@ -52,6 +55,17 @@ public class BaseActivity extends AppCompatActivity {
                 .clientKey("sayheyhey")  // set explicitly unless clientKey is explicitly configured on Parse server
                 .addNetworkInterceptor(new ParseLogInterceptor())
                 .server("https://voyaging.herokuapp.com/parse/").build());
+
+        FacebookSdk.sdkInitialize(this);
+        ParseFacebookUtils.initialize(this);
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            // do stuff with the user
+        } else {
+            Intent i = new Intent(BaseActivity.this, LoginActivity.class);
+            startActivity(i);
+        }
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override

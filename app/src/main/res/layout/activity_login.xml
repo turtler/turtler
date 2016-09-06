@@ -9,11 +9,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="turtler.voyageur.activities.LoginActivity">
 
-    <Button
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/btn_connect_fb"
-        android:id="@+id/btnFbLogin"
+        android:layout_gravity="center_horizontal"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
