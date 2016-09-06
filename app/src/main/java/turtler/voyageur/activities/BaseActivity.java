@@ -19,8 +19,8 @@ import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
-import com.parse.ParseObject;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.interceptors.ParseLogInterceptor;
 
@@ -33,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.models.Marker;
+import turtler.voyageur.models.User;
 import turtler.voyageur.utils.BitmapScaler;
 
 public class BaseActivity extends AppCompatActivity {
@@ -50,6 +51,8 @@ public class BaseActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         ParseObject.registerSubclass(Marker.class);
+        ParseObject.registerSubclass(User.class);
+
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("voyaging") // should correspond to APP_ID env variable
                 .clientKey("sayheyhey")  // set explicitly unless clientKey is explicitly configured on Parse server
