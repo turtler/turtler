@@ -70,6 +70,7 @@ public class MapActivity extends AppCompatActivity implements
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
     private PolylineOptions rectOptions = new PolylineOptions();
+    private String user_email;
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
@@ -80,7 +81,7 @@ public class MapActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-
+        user_email = getIntent().getStringExtra("user_email");
         mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -89,6 +90,7 @@ public class MapActivity extends AppCompatActivity implements
                     loadMap(map);
                     final GoogleMap gmap = map;
                     ParseQuery<turtler.voyageur.models.Marker> query = ParseQuery.getQuery("Marker");
+                    query.whereEqualTo("user_email", user_email);
                     query.findInBackground(new FindCallback<turtler.voyageur.models.Marker>() {
                         public void done(List<turtler.voyageur.models.Marker> markers, ParseException e) {
                             if (e == null) {
@@ -368,6 +370,7 @@ public class MapActivity extends AppCompatActivity implements
                         ParseObject parseMarker = ParseObject.create("Marker");
                         parseMarker.put("latitude", point.latitude);
                         parseMarker.put("longitude", point.longitude);
+                        parseMarker.put("user_email", user_email);
                         parseMarker.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
