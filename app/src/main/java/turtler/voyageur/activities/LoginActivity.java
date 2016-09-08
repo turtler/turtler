@@ -74,13 +74,19 @@ public class LoginActivity extends AppCompatActivity {
                             JSONObject data = picture.getJSONObject("data");
                             pictureUrl = data.getString("url");
                             currentUser.setEmail(email);
-                            currentUser.setUsername(name);
+                            currentUser.put("name", name);
                             currentUser.put("pictureUrl", pictureUrl);
                             currentUser.saveInBackground(new SaveCallback() {
                                 @Override
                                 public void done(ParseException e) {
                                     if (e != null) {
                                         Log.d("exception", e.toString());
+                                    }
+                                    else {
+                                        Intent data = new Intent();
+                                        data.putExtra("user_email", currentUser.getEmail());
+                                        setResult(500, data);
+                                        finish();
                                     }
                                 }
                             });
@@ -95,6 +101,10 @@ public class LoginActivity extends AppCompatActivity {
     public void getUserInfoFromParse() {
         ParseUser parseUser = ParseUser.getCurrentUser();
         Toast.makeText(LoginActivity.this, "Welcome back " + parseUser.getUsername().toString(), Toast.LENGTH_SHORT).show();
+        Intent data = new Intent();
+        data.putExtra("user_email", parseUser.getEmail());
+        setResult(500, data);
+        finish();
     }
 
     @Override

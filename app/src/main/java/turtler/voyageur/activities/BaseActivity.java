@@ -42,6 +42,8 @@ public class BaseActivity extends AppCompatActivity {
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
     public final static int PICK_PHOTO_CODE = 1046;
     public String photoFileName = "photo.jpg";
+    private final int LOGIN_REQUEST_CODE = 20;
+    private String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +64,13 @@ public class BaseActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(this);
         ParseFacebookUtils.initialize(this);
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
+        final ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
             // do stuff with the user
+            userEmail = currentUser.getEmail();
         } else {
             Intent i = new Intent(BaseActivity.this, LoginActivity.class);
-            startActivity(i);
+            startActivityForResult(i, LOGIN_REQUEST_CODE);
         }
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -82,12 +85,16 @@ public class BaseActivity extends AppCompatActivity {
                         showCameraOptions();
                         return true;
                     case R.id.item_menu_profile:
-                        Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
-                        startActivity(profileIntent);
+                        Intent profileIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivityForResult(profileIntent, LOGIN_REQUEST_CODE);
                         return true;
                     case R.id.item_menu_map:
                         Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
-                        startActivity(mapIntent);
+                        if (ParseUser.getCurrentUser() != null) {
+                            mapIntent.putExtra("user_email", ParseUser.getCurrentUser().getEmail());
+                            startActivity(mapIntent);
+                        }
+
                         return true;
                     default:
                         return false;
@@ -148,7 +155,6 @@ public class BaseActivity extends AppCompatActivity {
                 Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
                 ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
                 ivPreview.setImageBitmap(resizedBitmap);
-
                 // save file
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
@@ -183,6 +189,10 @@ public class BaseActivity extends AppCompatActivity {
                 ivPreview.setImageBitmap(selectedImage);
             } else {
                 Toast.makeText(this, "No picture chosen!", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == LOGIN_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                userEmail = data.getExtras().getString("user_email");
             }
         }
     }
