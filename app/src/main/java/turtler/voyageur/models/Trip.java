@@ -1,12 +1,16 @@
 package turtler.voyageur.models;
 
+import com.parse.ParseClassName;
+import com.parse.ParseObject;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Created by carolinewong on 9/3/16.
  */
-public class Trip {
+@ParseClassName("Trip")
+public class Trip extends ParseObject {
     public String getName() {
         return name;
     }
@@ -34,6 +38,10 @@ public class Trip {
     public ArrayList<Event> events;
 
     public Trip() {}
+
+    public Trip(String name) {
+        this.name = name;
+    }
 
     public Trip(String name, Date startDate, Date endDate, ArrayList<User> tripFriends, ArrayList<Event> events) {
         this.name = name;
