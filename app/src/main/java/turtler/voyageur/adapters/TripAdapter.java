@@ -1,6 +1,7 @@
 package turtler.voyageur.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
+import turtler.voyageur.activities.TripActivity;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
@@ -24,7 +26,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     private ArrayList<ParseObject> mTrips;
     private Context mContext;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.tvTripName) TextView tvTripName;
         @BindView(R.id.tvStartDate) TextView tvStartDate;
         @BindView(R.id.tvEndDate) TextView tvEndDate;
@@ -32,6 +34,17 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getLayoutPosition();
+
+            ParseObject trip = mTrips.get(position);
+            Intent i = new Intent(mContext, TripActivity.class);
+            i.putExtra("tripName", trip.get("name").toString());
+            mContext.startActivity(i);
         }
     }
 

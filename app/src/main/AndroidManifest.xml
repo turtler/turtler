@@ -42,7 +42,8 @@
         <activity android:name=".activities.MapActivity" />
         <activity android:name=".activities.ProfileActivity" />
         <activity android:name=".activities.HomeActivity" />
-        <activity android:name=".activities.LoginActivity"></activity>
+        <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.TripActivity" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
