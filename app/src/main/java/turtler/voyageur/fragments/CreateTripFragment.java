@@ -94,23 +94,24 @@ public class CreateTripFragment extends DialogFragment {
                 if (endDate != null) {
                     parseTrip.put("endDate", endDate);
                 }
-                ParseUser user = ParseUser.getCurrentUser();
+                final ParseUser user = ParseUser.getCurrentUser();
                 ParseRelation creatorRelation = parseTrip.getRelation("tripCreator");
                 creatorRelation.add(user);
                 parseTrip.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        CreateTripFragmentListener listener = (CreateTripFragmentListener) getActivity();
-                        listener.onFinishCreateTripDialog(parseTrip);
-                        dismiss();
-                    }
-                });
-                /* TODO: for each user on trip, save this event to their events list */
-                ParseRelation relation = user.getRelation("trips");
-                relation.add(parseTrip);
-                user.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
+                        /* TODO: don't chain calls like this */
+                        /* TODO: for each user on trip, save this event to their events list */
+                        ParseRelation relation = user.getRelation("trips");
+                        relation.add(parseTrip);
+                        user.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                CreateTripFragmentListener listener = (CreateTripFragmentListener) getActivity();
+                                listener.onFinishCreateTripDialog(parseTrip);
+                                dismiss();
+                            }
+                        });
                     }
                 });
             }
