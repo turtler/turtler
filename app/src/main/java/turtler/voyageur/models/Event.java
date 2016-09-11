@@ -1,11 +1,15 @@
 package turtler.voyageur.models;
 
+import com.parse.ParseClassName;
+import com.parse.ParseObject;
+
 import java.util.ArrayList;
 
 /**
  * Created by carolinewong on 9/3/16.
  */
-public class Event {
+@ParseClassName("Event")
+public class Event extends ParseObject {
     public int getTripId() {
         return tripId;
     }

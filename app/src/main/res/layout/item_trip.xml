@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_margin="10dp"
@@ -11,4 +11,24 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         tools:text="Italy"
         android:id="@+id/tvTripName" />
-</LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        tools:text="8/2/2016"
+        android:id="@+id/tvStartDate"
+        android:layout_alignBottom="@+id/tvTripName"
+        android:layout_toRightOf="@+id/tvTripName"
+        android:layout_toEndOf="@+id/tvTripName" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        tools:text="8/7/2016"
+        android:id="@+id/tvEndDate"
+        android:layout_alignTop="@+id/tvStartDate"
+        android:layout_toRightOf="@+id/tvStartDate"
+        android:layout_toEndOf="@+id/tvStartDate" />
+</RelativeLayout>

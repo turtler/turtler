@@ -31,11 +31,16 @@ public class Trip extends ParseObject {
         return events;
     }
 
+    public User getTripCreator() {
+        return tripCreator;
+    }
+
     public String name;
     public Date startDate;
     public Date endDate;
     public ArrayList<User> tripFriends;
     public ArrayList<Event> events;
+    public User tripCreator;
 
     public Trip() {}
 
@@ -43,11 +48,12 @@ public class Trip extends ParseObject {
         this.name = name;
     }
 
-    public Trip(String name, Date startDate, Date endDate, ArrayList<User> tripFriends, ArrayList<Event> events) {
+    public Trip(String name, Date startDate, Date endDate, ArrayList<User> tripFriends, ArrayList<Event> events, User tripCreator) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
         this.tripFriends = tripFriends;
         this.events = events;
+        this.tripCreator = tripCreator;
     }
 }
