@@ -42,4 +42,5 @@ dependencies {
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
 }
