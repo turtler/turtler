@@ -1,10 +1,10 @@
 package turtler.voyageur.adapters;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.parse.ParseObject;
@@ -12,35 +12,60 @@ import com.parse.ParseObject;
 import java.util.ArrayList;
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
  * Created by carolinewong on 9/9/16.
  */
-public class TripAdapter extends ArrayAdapter<ParseObject> {
-    public TripAdapter(Context c, ArrayList<ParseObject> trips) {
-        super(c, 0, trips);
+public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
+    private ArrayList<ParseObject> mTrips;
+    private Context mContext;
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.tvTripName) TextView tvTripName;
+        @BindView(R.id.tvStartDate) TextView tvStartDate;
+        @BindView(R.id.tvEndDate) TextView tvEndDate;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    public TripAdapter(Context context, ArrayList<ParseObject> trips) {
+        mContext = context;
+        mTrips = trips;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ParseObject t = getItem(position);
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_trip, parent, false);
-        }
-        TextView tvTripName = (TextView) convertView.findViewById(R.id.tvTripName);
-        TextView tvStartDate = (TextView) convertView.findViewById(R.id.tvStartDate);
-        TextView tvEndDate = (TextView) convertView.findViewById(R.id.tvEndDate);
-        tvTripName.setText(t.get("name").toString());
+    public TripAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        mContext = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        View itemTripView = inflater.inflate(R.layout.item_trip, parent, false);
+        ViewHolder viewHolder = new ViewHolder(itemTripView);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(TripAdapter.ViewHolder viewHolder, int position) {
+        ParseObject t = mTrips.get(position);
+
+        viewHolder.tvTripName.setText(t.get("name").toString());
         if (t.get("startDate") != null) {
             String startDate = TimeFormatUtils.dateToString((Date) t.get("startDate"));
-            tvStartDate.setText(startDate);
+            viewHolder.tvStartDate.setText(startDate);
         }
         if (t.get("endDate") != null) {
             String endDate = TimeFormatUtils.dateToString((Date) t.get("endDate"));
-            tvEndDate.setText(endDate);
+            viewHolder.tvEndDate.setText(endDate);
         }
-        return convertView;
+    }
+
+    @Override
+    public int getItemCount() {
+        return mTrips.size();
     }
 }

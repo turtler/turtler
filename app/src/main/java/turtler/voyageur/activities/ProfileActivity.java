@@ -4,8 +4,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ListView;
 
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -13,6 +14,7 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,7 +26,7 @@ import turtler.voyageur.fragments.CreateTripFragment;
  * Created by carolinewong on 9/3/16.
  */
 public class ProfileActivity extends AppCompatActivity implements CreateTripFragment.CreateTripFragmentListener {
-    @BindView(R.id.lvTrips) ListView lvTrips;
+    @BindView(R.id.rvTrips) RecyclerView rvTrips;
     @BindView(R.id.fabAddTrip) FloatingActionButton fabAddTrip;
     ArrayList<ParseObject> trips;
     TripAdapter tripAdapter;
@@ -36,7 +38,8 @@ public class ProfileActivity extends AppCompatActivity implements CreateTripFrag
         ButterKnife.bind(this);
         trips = new ArrayList<>();
         tripAdapter = new TripAdapter(this, trips);
-        lvTrips.setAdapter(tripAdapter);
+        rvTrips.setAdapter(tripAdapter);
+        rvTrips.setLayoutManager(new LinearLayoutManager(this));
 
         fabAddTrip.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,8 +54,10 @@ public class ProfileActivity extends AppCompatActivity implements CreateTripFrag
         ParseUser currentUser = ParseUser.getCurrentUser();
         ParseRelation tripRelation = (ParseRelation) currentUser.get("trips");
         try {
+            int curSize = tripAdapter.getItemCount();
+            List<ParseObject> queriedTrips = tripRelation.getQuery().find();
             trips.addAll(tripRelation.getQuery().find());
-            tripAdapter.notifyDataSetChanged();
+            tripAdapter.notifyItemRangeInserted(curSize, queriedTrips.size());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -66,7 +71,8 @@ public class ProfileActivity extends AppCompatActivity implements CreateTripFrag
 
     @Override
     public void onFinishCreateTripDialog(ParseObject newTrip) {
-        trips.add(newTrip);
-        tripAdapter.notifyDataSetChanged();
+        int curSize = tripAdapter.getItemCount();
+        trips.add(curSize, newTrip);
+        tripAdapter.notifyItemInserted(curSize);
     }
 }
