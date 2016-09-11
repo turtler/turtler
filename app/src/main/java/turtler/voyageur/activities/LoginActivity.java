@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -40,19 +41,27 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
-        List<String> permissions = Arrays.asList("user_friends", "email", "public_profile");
-        ParseFacebookUtils.logInWithReadPermissionsInBackground(this, permissions, new LogInCallback() {
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void done(ParseUser user, ParseException err) {
-                if (user == null) {
-                    Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
-                } else if (user.isNew()) {
-                    getUserInfoFromFb(user);
-                    Log.d("MyApp", "User signed up and logged in through Facebook!");
-                } else {
-                    Log.d("MyApp", "User logged in through Facebook!");
-                    getUserInfoFromParse();
+            public void onClick(View view) {
+                if (ParseUser.getCurrentUser() != null) {
+                    ParseUser.getCurrentUser().logOut();
                 }
+                List<String> permissions = Arrays.asList("user_friends", "email", "public_profile");
+                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser user, ParseException err) {
+                        if (user == null) {
+                            Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+                        } else if (user.isNew()) {
+                            getUserInfoFromFb(user);
+                            Log.d("MyApp", "User signed up and logged in through Facebook!");
+                        } else {
+                            Log.d("MyApp", "User logged in through Facebook!");
+                            getUserInfoFromParse();
+                        }
+                    }
+                });
             }
         });
     }
@@ -100,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void getUserInfoFromParse() {
         ParseUser parseUser = ParseUser.getCurrentUser();
-        Toast.makeText(LoginActivity.this, "Welcome back " + parseUser.getUsername().toString(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(LoginActivity.this, "Welcome back " + parseUser.get("name"), Toast.LENGTH_SHORT).show();
         Intent data = new Intent();
         data.putExtra("user_email", parseUser.getEmail());
         setResult(500, data);

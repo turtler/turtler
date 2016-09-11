@@ -85,7 +85,7 @@ public class BaseActivity extends AppCompatActivity {
                         showCameraOptions();
                         return true;
                     case R.id.item_menu_profile:
-                        Intent profileIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                        Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
                         startActivityForResult(profileIntent, LOGIN_REQUEST_CODE);
                         return true;
                     case R.id.item_menu_map:
@@ -94,7 +94,10 @@ public class BaseActivity extends AppCompatActivity {
                             mapIntent.putExtra("user_email", ParseUser.getCurrentUser().getEmail());
                             startActivity(mapIntent);
                         }
-
+                        return true;
+                    case R.id.item_logout:
+                        Intent logoutActivity = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivityForResult(logoutActivity, LOGIN_REQUEST_CODE);
                         return true;
                     default:
                         return false;
