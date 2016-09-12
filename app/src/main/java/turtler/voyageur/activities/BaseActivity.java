@@ -11,15 +11,23 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.ExifInterface;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.annotation.IdRes;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +35,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -42,12 +49,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.Parse;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.parse.interceptors.ParseLogInterceptor;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,13 +71,14 @@ import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.Constants;
-
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 
 public class BaseActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks {
-    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
+    @BindView(R.id.bottom_toolbar) ActionMenuView mBottomBar;
+
     public final String APP_TAG = "VoyageurApp";
     public final String AMAZON_S3_FILE_URL = "https://voyaging.s3.amazonaws.com/";
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
@@ -100,27 +104,11 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
     @SuppressWarnings("all")
     @NeedsPermission({Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION})
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        ParseObject.registerSubclass(Image.class);
-        ParseObject.registerSubclass(Marker.class);
-        ParseObject.registerSubclass(User.class);
-        ParseObject.registerSubclass(Trip.class);
-        ParseObject.registerSubclass(Event.class);
+        setSupportActionBar(mToolbar);
 
-
-        Parse.initialize(new Parse.Configuration.Builder(this)
-                .applicationId("voyaging") // should correspond to APP_ID env variable
-                .clientKey("sayheyhey")  // set explicitly unless clientKey is explicitly configured on Parse server
-                .addNetworkInterceptor(new ParseLogInterceptor())
-                .server("https://voyaging.herokuapp.com/parse/").build());
-
-
-        FacebookSdk.sdkInitialize(this);
-        ParseFacebookUtils.initialize(this);
         transferUtility = AmazonUtils.getTransferUtility(this);
         if (PermissionUtils.hasSelfPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION)) {
             getMyLocation();
@@ -154,38 +142,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
             Intent i = new Intent(BaseActivity.this, LoginActivity.class);
             startActivityForResult(i, LOGIN_REQUEST_CODE);
         }
-
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch(item.getItemId()){
-                    case R.id.item_menu_home:
-                        Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
-                        startActivity(homeIntent);
-                        return true;
-                    case R.id.item_menu_camera:
-                        showCameraOptions();
-                        return true;
-                    case R.id.item_menu_profile:
-                        Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
-                        startActivityForResult(profileIntent, LOGIN_REQUEST_CODE);
-                        return true;
-                    case R.id.item_menu_map:
-                        Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
-                        if (User.getCurrentUser() != null) {
-                            mapIntent.putExtra("user_email", User.getCurrentUser().getEmail());
-                            startActivity(mapIntent);
-                        }
-                        return true;
-                    case R.id.item_logout:
-                        Intent logoutActivity = new Intent(getApplicationContext(), LoginActivity.class);
-                        startActivityForResult(logoutActivity, LOGIN_REQUEST_CODE);
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
     }
 
     @SuppressWarnings("all")
@@ -203,9 +159,42 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.bottom_nav_bar, menu);
+        // getMenuInflater().inflate(R.menu.top_nav_bar, menu); //TODO: Make top nav bar layout
+        ActionMenuView bottomBar = (ActionMenuView)findViewById(R.id.bottom_toolbar);
+        Menu bottomMenu = bottomBar.getMenu();
+        getMenuInflater().inflate(R.menu.bottom_nav_bar, bottomMenu);
+        for (int i = 0; i < bottomMenu.size(); i++) {
+            bottomMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    return onOptionsItemSelected(item);
+                }
+            });
+        }
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item_menu_home:
+                Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+                startActivity(homeIntent);
+                return true;
+            case R.id.item_menu_camera:
+                showCameraOptions();
+                return true;
+            case R.id.item_menu_profile:
+                Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
+                startActivityForResult(profileIntent, LOGIN_REQUEST_CODE);
+                return true;
+            case R.id.item_logout:
+                Intent logoutActivity = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivityForResult(logoutActivity, LOGIN_REQUEST_CODE);
+                return true;
+            default:
+                return false;
+        }
     }
 
     public void showCameraOptions() {

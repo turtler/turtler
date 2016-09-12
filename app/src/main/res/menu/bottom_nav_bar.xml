@@ -16,11 +16,6 @@
         android:title="@string/profile"
         app:showAsAction="always">
     </item>
-    <item android:id="@+id/item_menu_map"
-        android:icon="@drawable/ic_map_marker"
-        android:title="@string/map"
-        app:showAsAction="always">
-    </item>
     <item android:id="@+id/item_logout"
         android:icon="@drawable/ic_exit"
         android:title="@string/logout"
