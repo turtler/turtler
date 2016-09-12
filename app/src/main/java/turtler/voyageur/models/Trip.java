@@ -12,6 +12,13 @@ import java.util.Date;
  */
 @ParseClassName("Trip")
 public class Trip extends ParseObject {
+    public String name;
+    public Date startDate;
+    public Date endDate;
+    public ArrayList<User> tripFriends;
+    public ArrayList<Event> events;
+    public User tripCreator;
+
     public Trip() {
         super();
     }
@@ -56,13 +63,6 @@ public class Trip extends ParseObject {
     public User getTripCreator() {
         return tripCreator;
     }
-
-    public String name;
-    public Date startDate;
-    public Date endDate;
-    public ArrayList<User> tripFriends;
-    public ArrayList<Event> events;
-    public User tripCreator;
 
     public ParseRelation<User> getTripFriendsRelation() {
         return getRelation("tripFriends");

@@ -11,4 +11,6 @@
     <string name="trip_name">Trip Name</string>
     <string name="start_date">Start</string>
     <string name="end_date">End</string>
+    <string name="location">Location</string>
+    <string name="caption">Caption</string>
 </resources>
