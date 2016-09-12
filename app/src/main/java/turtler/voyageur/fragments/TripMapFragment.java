@@ -52,6 +52,7 @@ import turtler.voyageur.R;
 import turtler.voyageur.activities.MapActivity;
 import turtler.voyageur.fragments.TripMapFragmentPermissionsDispatcher;
 import turtler.voyageur.models.Marker;
+import turtler.voyageur.models.Trip;
 
 /**
  * Created by cwong on 9/11/16.
@@ -68,7 +69,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         fragment.setArguments(args);
         return fragment;
     }
-
+    private String tripId;
     private SupportMapFragment mapFragment;
     private GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
@@ -87,7 +88,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         View view = inflater.inflate(R.layout.activity_map, container, false);
-
+        tripId = getActivity().getIntent().getStringExtra("tripId");
         user_email = ParseUser.getCurrentUser().getEmail();
         mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
         if (mapFragment != null) {
@@ -97,7 +98,8 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                     loadMap(map);
                     final GoogleMap gmap = map;
                     ParseQuery<Marker> query = ParseQuery.getQuery("Marker");
-                    query.whereEqualTo("user_email", user_email);
+                    query.whereEqualTo("user", ParseUser.getCurrentUser());
+                    query.whereEqualTo("trip", ParseObject.createWithoutData(Trip.class, tripId));
                     query.findInBackground(new FindCallback<Marker>() {
                         public void done(List<Marker> markers, ParseException e) {
                             if (e == null) {
@@ -130,7 +132,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         if (map != null) {
             // Map is ready
             map.setOnMapLongClickListener(this);
-            Toast.makeText(getContext(), "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
             TripMapFragmentPermissionsDispatcher.getMyLocationWithCheck(this);
         } else {
             Toast.makeText(getContext(), "Error - Map was null!!", Toast.LENGTH_SHORT).show();
@@ -240,7 +241,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         // Display the connection status
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location != null) {
-            Toast.makeText(getContext(), "GPS location was found!", Toast.LENGTH_SHORT).show();
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
             map.animateCamera(cameraUpdate);
@@ -264,8 +264,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-
     }
 
     /*
@@ -336,7 +334,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
 
     @Override
     public void onMapLongClick(LatLng point) {
-        Toast.makeText(getContext(), "Long Press", Toast.LENGTH_LONG).show();
         // Custom code here...
         // Display the alert dialog
         showAlertDialogForPoint(point);
@@ -355,10 +352,11 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                 .snippet("s")
                 .icon(defaultMarker));
 
-        ParseObject parseMarker = ParseObject.create("Marker");
-        parseMarker.put("latitude", point.latitude);
-        parseMarker.put("longitude", point.longitude);
-        parseMarker.put("user_email", user_email);
+        Marker parseMarker = new Marker();
+        parseMarker.setLatitudeKey(point.latitude);
+        parseMarker.setLongitudeKey(point.longitude);
+        parseMarker.setTrip(tripId);
+        parseMarker.setUser(ParseUser.getCurrentUser());
         parseMarker.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
