@@ -1,5 +1,6 @@
 package turtler.voyageur.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +18,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Regions;
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
@@ -34,7 +41,9 @@ import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.User;
+import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
+import turtler.voyageur.utils.Constants;
 
 public class BaseActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -44,6 +53,7 @@ public class BaseActivity extends AppCompatActivity {
     public String photoFileName = "photo.jpg";
     private final int LOGIN_REQUEST_CODE = 20;
     private String userEmail;
+    private TransferUtility transferUtility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +71,11 @@ public class BaseActivity extends AppCompatActivity {
                 .addNetworkInterceptor(new ParseLogInterceptor())
                 .server("https://voyaging.herokuapp.com/parse/").build());
 
+
         FacebookSdk.sdkInitialize(this);
         ParseFacebookUtils.initialize(this);
+        transferUtility = AmazonUtils.getTransferUtility(this);
+
 
         final ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
@@ -150,6 +163,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        final Context self = this;
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Uri takenPhotoUri = getPhotoFileUri(photoFileName);
@@ -169,6 +183,31 @@ public class BaseActivity extends AppCompatActivity {
                     FileOutputStream fos = new FileOutputStream(resizedFile);
                     fos.write(bytes.toByteArray());
                     fos.close();
+
+                    TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
+                            resizedFile);
+
+                    observer.setTransferListener(new TransferListener() {
+                        @Override
+                        public void onStateChanged(int i, TransferState transferState) {
+                            if (transferState.toString().equals("COMPLETED")) {
+                                Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onProgressChanged(int i, long l, long l1) {
+
+                        }
+
+                        @Override
+                        public void onError(int i, Exception e) {
+                            Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
+
+                    });
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -184,6 +223,31 @@ public class BaseActivity extends AppCompatActivity {
                     selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
                     ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
                     ivPreview.setImageBitmap(selectedImage);
+                    File resizedFile = new File(photoUri.getPath());
+                    resizedFile.createNewFile();
+                    TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
+                            resizedFile);
+
+                    observer.setTransferListener(new TransferListener() {
+                        @Override
+                        public void onStateChanged(int i, TransferState transferState) {
+                            if (transferState.toString().equals("COMPLETED")) {
+                                Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onProgressChanged(int i, long l, long l1) {
+
+                        }
+
+                        @Override
+                        public void onError(int i, Exception e) {
+                            Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
+
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
