@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
@@ -21,6 +22,8 @@ import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.adapters.TripAdapter;
 import turtler.voyageur.fragments.CreateTripFragment;
+import turtler.voyageur.models.Trip;
+import turtler.voyageur.models.User;
 
 /**
  * Created by carolinewong on 9/3/16.
@@ -28,7 +31,7 @@ import turtler.voyageur.fragments.CreateTripFragment;
 public class ProfileActivity extends AppCompatActivity implements CreateTripFragment.CreateTripFragmentListener {
     @BindView(R.id.rvTrips) RecyclerView rvTrips;
     @BindView(R.id.fabAddTrip) FloatingActionButton fabAddTrip;
-    ArrayList<ParseObject> trips;
+    ArrayList<Trip> trips;
     TripAdapter tripAdapter;
 
     @Override
@@ -51,12 +54,15 @@ public class ProfileActivity extends AppCompatActivity implements CreateTripFrag
     }
 
     public void populateTrips() {
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        ParseRelation tripRelation = (ParseRelation) currentUser.get("trips");
+        User currentUser = (User) ParseUser.getCurrentUser();
+        ParseRelation<ParseObject> tripRelation = currentUser.getRelation("trips");
         try {
             int curSize = tripAdapter.getItemCount();
-            List<ParseObject> queriedTrips = tripRelation.getQuery().find();
-            trips.addAll(tripRelation.getQuery().find());
+            ParseQuery query = tripRelation.getQuery();
+            query.setCachePolicy(ParseQuery.CachePolicy.NETWORK_ELSE_CACHE);
+
+            List<Trip> queriedTrips = query.find();
+            trips.addAll(queriedTrips);
             tripAdapter.notifyItemRangeInserted(curSize, queriedTrips.size());
         } catch (ParseException e) {
             e.printStackTrace();
@@ -70,7 +76,7 @@ public class ProfileActivity extends AppCompatActivity implements CreateTripFrag
     }
 
     @Override
-    public void onFinishCreateTripDialog(ParseObject newTrip) {
+    public void onFinishCreateTripDialog(Trip newTrip) {
         int curSize = tripAdapter.getItemCount();
         trips.add(curSize, newTrip);
         tripAdapter.notifyItemInserted(curSize);
