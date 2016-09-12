@@ -2,6 +2,7 @@ package turtler.voyageur.models;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseRelation;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,16 +12,37 @@ import java.util.Date;
  */
 @ParseClassName("Trip")
 public class Trip extends ParseObject {
+    public Trip() {
+        super();
+    }
+
+    public Trip(String name) {
+        super();
+        setName(name);
+    }
+
     public String getName() {
-        return name;
+        return getString("name");
+    }
+
+    public void setName(String name) {
+        put("name", name);
     }
 
     public Date getStartDate() {
-        return startDate;
+        return getDate("startDate");
+    }
+
+    public void setStartDate(Date startDate) {
+        put("startDate", startDate);
     }
 
     public Date getEndDate() {
-        return endDate;
+        return getDate("endDate");
+    }
+
+    public void setEndDate(Date endDate) {
+        put("endDate", endDate);
     }
 
     public ArrayList<User> getTripFriends() {
@@ -42,18 +64,45 @@ public class Trip extends ParseObject {
     public ArrayList<Event> events;
     public User tripCreator;
 
-    public Trip() {}
-
-    public Trip(String name) {
-        this.name = name;
+    public ParseRelation<User> getTripFriendsRelation() {
+        return getRelation("tripFriends");
     }
 
-    public Trip(String name, Date startDate, Date endDate, ArrayList<User> tripFriends, ArrayList<Event> events, User tripCreator) {
-        this.name = name;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.tripFriends = tripFriends;
-        this.events = events;
-        this.tripCreator = tripCreator;
+    public void addTripFriend(User friend) {
+        getTripFriendsRelation().add(friend);
+        saveInBackground();
+    }
+
+    public void removeTripFriend(User friend) {
+        getTripFriendsRelation().remove(friend);
+        saveInBackground();
+    }
+
+    public ParseRelation<Event> getEventsRelation() {
+        return getRelation("events");
+    }
+
+    public void addEvent(Event event) {
+        getEventsRelation().add(event);
+        saveInBackground();
+    }
+
+    public void removeEvent(Event event) {
+        getEventsRelation().remove(event);
+        saveInBackground();
+    }
+
+    public ParseRelation<User> getTripCreatorRelation() {
+        return getRelation("tripCreator");
+    }
+
+    public void addTripCreator(User tripCreator) {
+        getTripCreatorRelation().add(tripCreator);
+        saveInBackground();
+    }
+
+    public void removeTripCreator(User tripCreator) {
+        getTripCreatorRelation().remove(tripCreator);
+        saveInBackground();
     }
 }

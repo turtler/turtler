@@ -13,9 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseRelation;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.Calendar;
@@ -25,6 +22,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import turtler.voyageur.R;
+import turtler.voyageur.models.Trip;
+import turtler.voyageur.models.User;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
@@ -46,7 +45,7 @@ public class CreateTripFragment extends DialogFragment {
     public CreateTripFragment(){}
 
     public interface CreateTripFragmentListener {
-        void onFinishCreateTripDialog(ParseObject newTrip);
+        void onFinishCreateTripDialog(Trip newTrip);
     }
 
     public static CreateTripFragment newInstance() {
@@ -85,34 +84,25 @@ public class CreateTripFragment extends DialogFragment {
         btnSaveTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final ParseObject parseTrip = ParseObject.create("Trip");
                 String tripName = etTripName.getText().toString();
-                parseTrip.put("name", tripName);
+                final Trip newTrip = new Trip(tripName);
                 if (startDate != null) {
-                    parseTrip.put("startDate", startDate);
+                    newTrip.setStartDate(startDate);
                 }
                 if (endDate != null) {
-                    parseTrip.put("endDate", endDate);
+                    newTrip.setEndDate(endDate);
                 }
-                final ParseUser user = ParseUser.getCurrentUser();
-                ParseRelation creatorRelation = parseTrip.getRelation("tripCreator");
-                creatorRelation.add(user);
-                parseTrip.saveInBackground(new SaveCallback() {
+                final User user = (User) User.getCurrentUser();
+                newTrip.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        /* TODO: don't chain calls like this */
-                        /* TODO: for each user on trip, save this event to their events list */
-                        ParseRelation relation = user.getRelation("trips");
-                        relation.add(parseTrip);
-                        user.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                CreateTripFragmentListener listener = (CreateTripFragmentListener) getActivity();
-                                listener.onFinishCreateTripDialog(parseTrip);
-                                dismiss();
-                            }
-                        });
+                        newTrip.addTripCreator(user);
+                        user.addTrip(newTrip);
+                        CreateTripFragmentListener listener = (CreateTripFragmentListener) getActivity();
+                        listener.onFinishCreateTripDialog(newTrip);
+                        dismiss();
                     }
+
                 });
             }
         });

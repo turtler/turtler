@@ -28,7 +28,6 @@ import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 import com.parse.interceptors.ParseLogInterceptor;
 
 import java.io.ByteArrayOutputStream;
@@ -39,7 +38,9 @@ import java.io.IOException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
+import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Marker;
+import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
@@ -64,6 +65,9 @@ public class BaseActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ParseObject.registerSubclass(Marker.class);
         ParseObject.registerSubclass(User.class);
+        ParseObject.registerSubclass(Trip.class);
+        ParseObject.registerSubclass(Event.class);
+
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("voyaging") // should correspond to APP_ID env variable
@@ -77,7 +81,7 @@ public class BaseActivity extends AppCompatActivity {
         transferUtility = AmazonUtils.getTransferUtility(this);
 
 
-        final ParseUser currentUser = ParseUser.getCurrentUser();
+        final User currentUser = (User) User.getCurrentUser();
         if (currentUser != null) {
             // do stuff with the user
             userEmail = currentUser.getEmail();
@@ -103,8 +107,8 @@ public class BaseActivity extends AppCompatActivity {
                         return true;
                     case R.id.item_menu_map:
                         Intent mapIntent = new Intent(getApplicationContext(), MapActivity.class);
-                        if (ParseUser.getCurrentUser() != null) {
-                            mapIntent.putExtra("user_email", ParseUser.getCurrentUser().getEmail());
+                        if (User.getCurrentUser() != null) {
+                            mapIntent.putExtra("user_email", User.getCurrentUser().getEmail());
                             startActivity(mapIntent);
                         }
                         return true;

@@ -11,19 +11,19 @@ import android.widget.TextView;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.activities.TripActivity;
+import turtler.voyageur.models.Trip;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
  * Created by carolinewong on 9/9/16.
  */
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
-    private ArrayList<ParseObject> mTrips;
+    private ArrayList<Trip> mTrips;
     private Context mContext;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -43,12 +43,12 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
             ParseObject trip = mTrips.get(position);
             Intent i = new Intent(mContext, TripActivity.class);
-            i.putExtra("tripName", trip.get("name").toString());
+            i.putExtra("tripId", trip.getObjectId());
             mContext.startActivity(i);
         }
     }
 
-    public TripAdapter(Context context, ArrayList<ParseObject> trips) {
+    public TripAdapter(Context context, ArrayList<Trip> trips) {
         mContext = context;
         mTrips = trips;
     }
@@ -64,15 +64,15 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(TripAdapter.ViewHolder viewHolder, int position) {
-        ParseObject t = mTrips.get(position);
+        Trip t = mTrips.get(position);
 
-        viewHolder.tvTripName.setText(t.get("name").toString());
-        if (t.get("startDate") != null) {
-            String startDate = TimeFormatUtils.dateToString((Date) t.get("startDate"));
+        viewHolder.tvTripName.setText(t.getName());
+        if (t.getStartDate() != null) {
+            String startDate = TimeFormatUtils.dateToString(t.getStartDate());
             viewHolder.tvStartDate.setText(startDate);
         }
-        if (t.get("endDate") != null) {
-            String endDate = TimeFormatUtils.dateToString((Date) t.get("endDate"));
+        if (t.getEndDate() != null) {
+            String endDate = TimeFormatUtils.dateToString(t.getEndDate());
             viewHolder.tvEndDate.setText(endDate);
         }
     }
