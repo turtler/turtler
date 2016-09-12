@@ -8,27 +8,34 @@ import com.parse.ParseObject;
  */
 @ParseClassName("Image")
 public class Image extends ParseObject {
-    public String getPicture_url() {
-        return picture_url;
+    public static final String LATITUDE_KEY = "latitude";
+    public static final String LONGITUDE_KEY = "longitude";
+    public static final String USER_KEY = "user";
+    public static final String EVENT_KEY = "event";
+    public static final String PICTURE_URL_KEY = "pictureUrl";
+
+
+    public String getPictureUrl() {
+        return getString(PICTURE_URL_KEY);
     }
 
     public User getUser() {
-        return user;
+        return (User) getParseUser(USER_KEY);
     }
 
     public Event getEvent() {
-        return event;
+        return (Event) get("event");
     }
 
     public double getLatitude() {
-        return latitude;
+        return getDouble(LATITUDE_KEY);
     }
 
     public double getLongitude() {
-        return longitude;
+        return getDouble(LONGITUDE_KEY);
     }
 
-    public String picture_url;
+    public String pictureUrl;
     public User user;
     public Event event;
     public double latitude;
@@ -36,8 +43,29 @@ public class Image extends ParseObject {
 
     public Image() {}
 
-    public Image(String picture_url, User user, Event event, double latitude, double longitude) {
-        this.picture_url = picture_url;
+    public void setPictureUrl(String pictureUrl) {
+        put(PICTURE_URL_KEY, pictureUrl);
+    }
+
+    public void setUser(User user) {
+        put(USER_KEY, user);
+    }
+
+    public void setEvent(Event event) {
+        put(EVENT_KEY, event);
+    }
+
+    public void setLatitude(double latitude) {
+        put(LATITUDE_KEY, latitude);
+    }
+
+    public void setLongitude(double longitude) {
+        put(LONGITUDE_KEY, longitude);
+
+    }
+
+    public Image(String pictureUrl, User user, Event event, double latitude, double longitude) {
+        this.pictureUrl = pictureUrl;
         this.user = user;
         this.event = event;
         this.latitude = latitude;

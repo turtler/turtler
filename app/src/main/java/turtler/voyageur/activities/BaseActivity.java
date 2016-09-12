@@ -1,13 +1,22 @@
 package turtler.voyageur.activities;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -25,20 +34,34 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Regions;
 import com.facebook.FacebookSdk;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.interceptors.ParseLogInterceptor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
 import turtler.voyageur.models.Event;
+import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
@@ -46,23 +69,43 @@ import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.Constants;
 
-public class BaseActivity extends AppCompatActivity {
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
+
+
+public class BaseActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks {
     @BindView(R.id.toolbar) Toolbar toolbar;
     public final String APP_TAG = "VoyageurApp";
+    public final String AMAZON_S3_FILE_URL = "https://voyaging.s3.amazonaws.com/";
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
     public final static int PICK_PHOTO_CODE = 1046;
-    public String photoFileName = "photo.jpg";
+    public String photoFileName = "photo";
     private final int LOGIN_REQUEST_CODE = 20;
     private String userEmail;
     private TransferUtility transferUtility;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    private LocationRequest mLocationRequest;
+    private long UPDATE_INTERVAL = 60000;  /* 60 secs */
+    private long FASTEST_INTERVAL = 5000; /* 5 secs */
+    private static final String[] PERMISSION_GETMYLOCATION = new String[] {"android.permission.ACCESS_FINE_LOCATION","android.permission.ACCESS_COARSE_LOCATION"};
+    private static final int REQUEST_GETMYLOCATION = 0;
+
+    double latitude;
+    double longitude;
+
+    protected LocationManager locationManager;
 
     @Override
+    @SuppressWarnings("all")
+    @NeedsPermission({Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION})
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+        ParseObject.registerSubclass(Image.class);
         ParseObject.registerSubclass(Marker.class);
         ParseObject.registerSubclass(User.class);
         ParseObject.registerSubclass(Trip.class);
@@ -79,7 +122,29 @@ public class BaseActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(this);
         ParseFacebookUtils.initialize(this);
         transferUtility = AmazonUtils.getTransferUtility(this);
+        if (PermissionUtils.hasSelfPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION)) {
+            getMyLocation();
+        } else {
+            ActivityCompat.requestPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION, REQUEST_GETMYLOCATION);
+        }
 
+        if (ContextCompat.checkSelfPermission(BaseActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == 1) {
+            locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
+                        @Override
+                        public void onStatusChanged(String provider, int status, Bundle extras) {
+                        }
+                        @Override
+                        public void onProviderEnabled(String provider) {
+                        }
+                        @Override
+                        public void onProviderDisabled(String provider) {
+                        }
+                        @Override
+                        public void onLocationChanged(final Location location) {
+                        }
+                    });
+        }
 
         final User currentUser = (User) User.getCurrentUser();
         if (currentUser != null) {
@@ -123,6 +188,19 @@ public class BaseActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressWarnings("all")
+    @NeedsPermission({Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION})
+    void getMyLocation() {
+        locationManager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .build();
+
+        mGoogleApiClient.connect();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -151,6 +229,25 @@ public class BaseActivity extends AppCompatActivity {
         popup.show();
     }
 
+    @Override
+    public void onConnected(Bundle dataBundle) {
+        // Display the connection status
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (location != null) {
+            Toast.makeText(this, "GPS location was found!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Current location was null, enable GPS on emulator!", Toast.LENGTH_SHORT).show();
+        }
+        startLocationUpdates();
+    }
+
+    protected void startLocationUpdates() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+    }
+
     public void showCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, getPhotoFileUri(photoFileName)); // set the image file name
@@ -168,6 +265,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final Context self = this;
+
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Uri takenPhotoUri = getPhotoFileUri(photoFileName);
@@ -180,7 +278,7 @@ public class BaseActivity extends AppCompatActivity {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
                 // new file for the resized bitmap
-                Uri resizedUri = getPhotoFileUri(photoFileName + "_resized");
+                Uri resizedUri = getPhotoFileUri(photoFileName + UUID.randomUUID());
                 File resizedFile = new File(resizedUri.getPath());
                 try {
                     resizedFile.createNewFile();
@@ -188,30 +286,10 @@ public class BaseActivity extends AppCompatActivity {
                     fos.write(bytes.toByteArray());
                     fos.close();
 
-                    TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
-                            resizedFile);
-
-                    observer.setTransferListener(new TransferListener() {
-                        @Override
-                        public void onStateChanged(int i, TransferState transferState) {
-                            if (transferState.toString().equals("COMPLETED")) {
-                                Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onProgressChanged(int i, long l, long l1) {
-
-                        }
-
-                        @Override
-                        public void onError(int i, Exception e) {
-                            Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-
-
-                    });
-
+                    Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    if (mLastLocation != null) {
+                        saveImageToParse(mLastLocation, resizedFile);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -229,29 +307,12 @@ public class BaseActivity extends AppCompatActivity {
                     ivPreview.setImageBitmap(selectedImage);
                     File resizedFile = new File(photoUri.getPath());
                     resizedFile.createNewFile();
-                    TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
-                            resizedFile);
 
-                    observer.setTransferListener(new TransferListener() {
-                        @Override
-                        public void onStateChanged(int i, TransferState transferState) {
-                            if (transferState.toString().equals("COMPLETED")) {
-                                Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
-                            }
-                        }
+                    Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    if (mLastLocation != null) {
+                        saveImageToParse(mLastLocation, resizedFile);
+                    }
 
-                        @Override
-                        public void onProgressChanged(int i, long l, long l1) {
-
-                        }
-
-                        @Override
-                        public void onError(int i, Exception e) {
-                            Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-
-
-                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -266,6 +327,56 @@ public class BaseActivity extends AppCompatActivity {
                 userEmail = data.getExtras().getString("user_email");
             }
         }
+    }
+
+    public void saveImageToParse(Location mLastLocation, File resizedFile) {
+        String lat = Double.toString(mLastLocation.getLatitude());
+        String lon = Double.toString(mLastLocation.getLongitude());
+        Image parseImage = new Image();
+        parseImage.setLatitude(mLastLocation.getLatitude());
+        parseImage.setLongitude(mLastLocation.getLongitude());
+        parseImage.setPictureUrl(AMAZON_S3_FILE_URL + resizedFile.getName());
+        parseImage.setUser((User) ParseUser.getCurrentUser());
+
+        final Context self = this;
+
+        parseImage.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Toast.makeText(BaseActivity.this, "Successfully saved image on Parse",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("ERROR", "Failed to save marker", e);
+                }
+
+            }
+        });
+
+        Toast.makeText(this, lat + "," + lon, Toast.LENGTH_LONG).show();
+
+        TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
+                resizedFile);
+
+        observer.setTransferListener(new TransferListener() {
+            @Override
+            public void onStateChanged(int i, TransferState transferState) {
+                if (transferState.toString().equals("COMPLETED")) {
+                    Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int i, long l, long l1) {
+
+            }
+
+            @Override
+            public void onError(int i, Exception e) {
+                Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
+        });
     }
 
     // Returns uri for photo stored on disk with fileName
@@ -284,4 +395,13 @@ public class BaseActivity extends AppCompatActivity {
         String state = Environment.getExternalStorageState();
         return state.equals(Environment.MEDIA_MOUNTED);
     }
+
+    public void onConnectionSuspended(int i) {
+        if (i == CAUSE_SERVICE_DISCONNECTED) {
+            Toast.makeText(this, "Disconnected. Please re-connect.", Toast.LENGTH_SHORT).show();
+        } else if (i == CAUSE_NETWORK_LOST) {
+            Toast.makeText(this, "Network lost. Please re-connect.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }
