@@ -5,29 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.ExifInterface;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.annotation.IdRes;
-import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,40 +30,30 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.regions.Regions;
-import com.facebook.FacebookSdk;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
-import turtler.voyageur.models.Event;
+import turtler.voyageur.fragments.ProfileFragment;
 import turtler.voyageur.models.Image;
-import turtler.voyageur.models.Marker;
-import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.Constants;
-import permissions.dispatcher.NeedsPermission;
-import permissions.dispatcher.RuntimePermissions;
 
 
 public class BaseActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks {
@@ -185,8 +166,9 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                 showCameraOptions();
                 return true;
             case R.id.item_menu_profile:
-                Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
-                startActivityForResult(profileIntent, LOGIN_REQUEST_CODE);
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.frame_layout, ProfileFragment.newInstance());
+                ft.commit();
                 return true;
             case R.id.item_logout:
                 Intent logoutActivity = new Intent(getApplicationContext(), LoginActivity.class);

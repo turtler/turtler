@@ -98,7 +98,7 @@ public class CreateTripFragment extends DialogFragment {
                     public void done(ParseException e) {
                         newTrip.addTripCreator(user);
                         user.addTrip(newTrip);
-                        CreateTripFragmentListener listener = (CreateTripFragmentListener) getActivity();
+                        CreateTripFragmentListener listener = (CreateTripFragmentListener) getTargetFragment();
                         listener.onFinishCreateTripDialog(newTrip);
                         dismiss();
                     }

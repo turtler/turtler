@@ -31,10 +31,8 @@ import turtler.voyageur.models.User;
  * Created by cwong on 9/11/16.
  */
 public class ProfileFragment extends Fragment implements CreateTripFragment.CreateTripFragmentListener {
-    @BindView(R.id.rvTrips)
-    RecyclerView rvTrips;
-    @BindView(R.id.fabAddTrip)
-    FloatingActionButton fabAddTrip;
+    @BindView(R.id.rvTrips) RecyclerView rvTrips;
+    @BindView(R.id.fabAddTrip) FloatingActionButton fabAddTrip;
     ArrayList<Trip> trips;
     TripAdapter tripAdapter;
 
@@ -45,11 +43,10 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
         return fragment;
     }
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_profile, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this, view);
         trips = new ArrayList<>();
         tripAdapter = new TripAdapter(getContext(), trips);
@@ -65,25 +62,6 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
         populateTrips();
         return view;
     }
-//
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_profile);
-//        ButterKnife.bind(this);
-//        trips = new ArrayList<>();
-//        tripAdapter = new TripAdapter(this, trips);
-//        rvTrips.setAdapter(tripAdapter);
-//        rvTrips.setLayoutManager(new LinearLayoutManager(this));
-//
-//        fabAddTrip.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showCreateTripFragment();
-//            }
-//        });
-//        populateTrips();
-//    }
 
     public void populateTrips() {
         User currentUser = (User) ParseUser.getCurrentUser();
@@ -103,8 +81,9 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
 
     private void showCreateTripFragment() {
         FragmentManager fm = getActivity().getSupportFragmentManager();
-        CreateTripFragment alertDialog = CreateTripFragment.newInstance();
-        alertDialog.show(fm, "fragment_create_trip");
+        CreateTripFragment tripFragment = CreateTripFragment.newInstance();
+        tripFragment.setTargetFragment(ProfileFragment.this, 300);
+        tripFragment.show(fm, "fragment_create_trip");
     }
 
     @Override
