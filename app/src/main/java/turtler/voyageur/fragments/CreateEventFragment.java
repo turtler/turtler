@@ -1,5 +1,7 @@
 package turtler.voyageur.fragments;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,38 +9,36 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -46,7 +46,6 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import turtler.voyageur.R;
 import turtler.voyageur.VoyageurApplication;
-import turtler.voyageur.activities.BaseActivity;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
@@ -54,8 +53,8 @@ import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
-import turtler.voyageur.utils.Constants;
 import turtler.voyageur.utils.ImageUtils;
+import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
  * Created by carolinewong on 9/3/16.
@@ -68,6 +67,7 @@ public class CreateEventFragment extends DialogFragment {
     @BindView(R.id.etTitle) EditText etTitle;
     @BindView(R.id.tvCaptionLabel) TextView tvCaptionLabel;
     @BindView(R.id.etCaption) EditText etCaption;
+    @BindView(R.id.etDateTime) EditText etDateTime;
     @BindView(R.id.btnSaveEvent) Button btnSaveEvent;
     GoogleApiClient mGoogleApiClient;
 
@@ -76,8 +76,8 @@ public class CreateEventFragment extends DialogFragment {
     Location mLastLocation;
     Bitmap selectedImageBitmap;
     Image image;
-
     private Unbinder unbinder;
+    Calendar calendar;
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
     public final static int PICK_PHOTO_CODE = 1046;
     public String photoFileName = "photo";
@@ -118,6 +118,7 @@ public class CreateEventFragment extends DialogFragment {
             mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
         }
         transferUtility = AmazonUtils.getTransferUtility(getContext());
+        calendar = Calendar.getInstance();
     }
 
     @Override
@@ -125,17 +126,26 @@ public class CreateEventFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_create_event, container, false);
         getDialog().setCanceledOnTouchOutside(true);
         unbinder = ButterKnife.bind(this, view);
+        etDateTime.setText(calendar.getTime().toString()); //automatically shows current time
         setupListeners();
         return view;
     }
 
     public void setupListeners() {
+        etDateTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickerDialog(view);
+            }
+        });
+
         btnSaveEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final Event newEvent = new Event();
                 String caption = etCaption.getText().toString();
                 newEvent.setCaption(caption);
+                newEvent.setDate(calendar.getTime()); //if not set by user, defaults to now
 
                 final User user = (User) User.getCurrentUser();
                 newEvent.setCreator(user);
@@ -155,7 +165,7 @@ public class CreateEventFragment extends DialogFragment {
                             public void done(ParseException e) {
                                 currentTrip.addEvent(newEvent);
                                 newEvent.addMarker(parseMarker);
-                                newEvent.addImage(ParseUser.createWithoutData(Image.class, image.getObjectId()));
+                                newEvent.addImage(user.createWithoutData(Image.class, image.getObjectId()));
                                 CreateEventFragmentListener listener = (CreateEventFragmentListener) getTargetFragment();
                                 listener.onFinishCreateEventDialog(newEvent);
                                 dismiss();
@@ -171,6 +181,43 @@ public class CreateEventFragment extends DialogFragment {
                 showCameraOptions();
             }
         });
+    }
+
+    public void showDatePickerDialog(final View v) {
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, monthOfYear);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                showTimePickerDialog(v);
+            }
+        };
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), listener, year, month, day);
+        datePickerDialog.show();
+    }
+
+    public void showTimePickerDialog(View v) {
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                calendar.set(Calendar.HOUR, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+                etDateTime.setText(formattedPickedStringDateTime(calendar));
+            }
+        };
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), listener, hour, minute, false);
+        timePickerDialog.show();
+    }
+
+    public String formattedPickedStringDateTime(Calendar c) {
+        return TimeFormatUtils.dateTimeToString(c.getTime());
     }
 
     public void showCameraOptions() {

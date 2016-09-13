@@ -5,6 +5,7 @@ import com.parse.ParseObject;
 import com.parse.ParseRelation;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by carolinewong on 9/3/16.
@@ -18,6 +19,7 @@ public class Event extends ParseObject {
     public User creator;
     public String title;
     public Marker marker;
+    public Date date;
 
     public Marker getMarker() {
         return (Marker) getParseObject("marker");
@@ -65,6 +67,14 @@ public class Event extends ParseObject {
 
     public void setTitle(String title) {
         put("title", title);
+    }
+
+    public Date getDate() {
+        return getDate("date");
+    }
+
+    public void setDate(Date date) {
+        put("date", date);
     }
 
     public ParseRelation<Image> imagesRelation() {

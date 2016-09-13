@@ -17,13 +17,31 @@ public class TimeFormatUtils {
 
     public static Date strToDate(String dateString) {
         SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-        Date startDate = null;
+        Date date = null;
         try {
-            startDate = df.parse(dateString);
-            return startDate;
+            date = df.parse(dateString);
+            return date;
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return startDate;
+        return date;
+    }
+
+    public static String dateTimeToString(Date d) {
+        String format = "MM/dd/yyyy HH:mm";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+        return sdf.format(d);
+    }
+
+    public static Date strToDateTime(String dateString) {
+        SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        Date date = null;
+        try {
+            date = df.parse(dateString);
+            return date;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
 }
