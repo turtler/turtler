@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.util.TimeUtils;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -126,7 +127,7 @@ public class CreateEventFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_create_event, container, false);
         getDialog().setCanceledOnTouchOutside(true);
         unbinder = ButterKnife.bind(this, view);
-        etDateTime.setText(calendar.getTime().toString()); //automatically shows current time
+        etDateTime.setText(TimeFormatUtils.dateTimeToString(calendar.getTime())); //automatically shows current time
         setupListeners();
         return view;
     }
