@@ -375,7 +375,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                 final Event event = new Event();
                 event.setCaption(snippet);
                 event.setCreator((User) ParseUser.getCurrentUser());
-                event.setTrip(t);
+                event.setTrip(tripId);
                 event.setTitle(title);
                 event.saveInBackground(new SaveCallback() {
                     @Override
@@ -387,6 +387,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                         parseMarker.setUser(ParseUser.getCurrentUser());
                         parseMarker.setEvent(event);
                         parseMarker.setTrip(tripId);
+                        event.addMarker(parseMarker);
                         parseMarker.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {

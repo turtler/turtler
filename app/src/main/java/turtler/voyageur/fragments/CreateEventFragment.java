@@ -49,6 +49,7 @@ import turtler.voyageur.VoyageurApplication;
 import turtler.voyageur.activities.BaseActivity;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
+import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
@@ -63,6 +64,8 @@ public class CreateEventFragment extends DialogFragment {
     @BindView(R.id.ivPreview) ImageView ivPreview;
     @BindView(R.id.tvLocationLabel) TextView tvLocationLabel;
     @BindView(R.id.tvLocation) TextView tvLocation;
+    @BindView(R.id.tvTitleLabel) TextView tvTitleLabel;
+    @BindView(R.id.etTitle) EditText etTitle;
     @BindView(R.id.tvCaptionLabel) TextView tvCaptionLabel;
     @BindView(R.id.etCaption) EditText etCaption;
     @BindView(R.id.btnSaveEvent) Button btnSaveEvent;
@@ -70,11 +73,14 @@ public class CreateEventFragment extends DialogFragment {
 
     Trip currentTrip;
     String tripId;
+    Location mLastLocation;
+    Bitmap selectedImageBitmap;
+    Image image;
+
     private Unbinder unbinder;
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
     public final static int PICK_PHOTO_CODE = 1046;
     public String photoFileName = "photo";
-    public final String APP_TAG = "VoyageurApp";
     private TransferUtility transferUtility;
 
     public CreateEventFragment() {}
@@ -112,7 +118,6 @@ public class CreateEventFragment extends DialogFragment {
             mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
         }
         transferUtility = AmazonUtils.getTransferUtility(getContext());
-
     }
 
     @Override
@@ -129,19 +134,33 @@ public class CreateEventFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 final Event newEvent = new Event();
-                //set attributes for event
                 String caption = etCaption.getText().toString();
                 newEvent.setCaption(caption);
 
                 final User user = (User) User.getCurrentUser();
+                newEvent.setCreator(user);
+                newEvent.setTrip(tripId);
+                newEvent.setTitle(etTitle.getText().toString());
                 newEvent.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        newEvent.setCreator(user);
-                        currentTrip.addEvent(newEvent);
-                        CreateEventFragmentListener listener = (CreateEventFragmentListener) getTargetFragment();
-                        listener.onFinishCreateEventDialog(newEvent);
-                        dismiss();
+                        final Marker parseMarker = new Marker();
+                        parseMarker.setLatitude(mLastLocation.getLatitude());
+                        parseMarker.setLongitude(mLastLocation.getLongitude());
+                        parseMarker.setUser(user);
+                        parseMarker.setEvent(newEvent);
+                        parseMarker.setTrip(tripId);
+                        parseMarker.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                currentTrip.addEvent(newEvent);
+                                newEvent.addMarker(parseMarker);
+                                newEvent.addImage(ParseUser.createWithoutData(Image.class, image.getObjectId()));
+                                CreateEventFragmentListener listener = (CreateEventFragmentListener) getTargetFragment();
+                                listener.onFinishCreateEventDialog(newEvent);
+                                dismiss();
+                            }
+                        });
                     }
                 });
             }
@@ -197,11 +216,10 @@ public class CreateEventFragment extends DialogFragment {
                 Uri takenPhotoUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName);
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
                 //resize bitmap or else may hit OutOfMemoryError
-                Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
-                ivPreview.setImageBitmap(resizedBitmap);
+                selectedImageBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
                 // save file
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+                selectedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
                 // new file for the resized bitmap
                 Uri resizedUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName + UUID.randomUUID());
                 File resizedFile = new File(resizedUri.getPath());
@@ -211,13 +229,14 @@ public class CreateEventFragment extends DialogFragment {
                     fos.write(bytes.toByteArray());
                     fos.close();
 
-                    Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (mLastLocation != null) {
-                        ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
+                        image = ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                setFragmentUIWithEventProps();
             } else {
                 Toast.makeText(self, "No picture taken!", Toast.LENGTH_SHORT).show();
             }
@@ -225,29 +244,32 @@ public class CreateEventFragment extends DialogFragment {
             if (data != null) {
                 Uri photoUri = data.getData();
                 // Do something with the photo based on Uri
-                Bitmap selectedImage = null;
+                selectedImageBitmap = null;
                 try {
-                    selectedImage = MediaStore.Images.Media.getBitmap(self.getContentResolver(), photoUri);
-                    ivPreview.setImageBitmap(selectedImage);
+                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(self.getContentResolver(), photoUri);
+                    ivPreview.setImageBitmap(selectedImageBitmap);
                     File resizedFile = new File(photoUri.getPath());
                     resizedFile.createNewFile();
 
-                    Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (mLastLocation != null) {
-                        ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
+                        image = ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                // Load the selected image into a preview
-                ivPreview.setImageBitmap(selectedImage);
+                setFragmentUIWithEventProps();
             } else {
                 Toast.makeText(self, "No picture chosen!", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    public void setFragmentUIWithEventProps() {
+        ivPreview.setImageBitmap(selectedImageBitmap);
+        tvLocation.setText(Double.toString(mLastLocation.getLatitude()) + ", " + Double.toString(mLastLocation.getLongitude()));
+    }
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

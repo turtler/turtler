@@ -27,7 +27,7 @@ public class ImageUtils {
     public final static String AMAZON_S3_FILE_URL = "https://voyaging.s3.amazonaws.com/";
     public final static String APP_TAG = "VoyageurApp";
 
-    public static void saveImageToParse(final Context context, TransferUtility transferUtility, Location mLastLocation, File resizedFile) {
+    public static Image saveImageToParse(final Context context, TransferUtility transferUtility, Location mLastLocation, File resizedFile) {
         String lat = Double.toString(mLastLocation.getLatitude());
         String lon = Double.toString(mLastLocation.getLongitude());
         Image parseImage = new Image();
@@ -68,7 +68,9 @@ public class ImageUtils {
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+        return parseImage;
     }
+
     // Returns uri for photo stored on disk with fileName
     public static Uri getPhotoFileUri(Context c, String fileName) {
         if (isExternalStorageAvailable()) {

@@ -15,9 +15,13 @@ public class Event extends ParseObject {
     public ArrayList<Image> images;
     public ArrayList<User> peopleAtEvent;
     public String caption;
-    public User eventCreator;
+    public User creator;
     public String title;
     public Marker marker;
+
+    public Marker getMarker() {
+        return (Marker) getParseObject("marker");
+    }
 
     public Event() {
         super();
@@ -27,8 +31,8 @@ public class Event extends ParseObject {
         return (Trip) getParseObject("trip");
     }
 
-    public void setTrip(Trip t) {
-        put("trip", t);
+    public void setTrip(String tripId) {
+        put("trip", ParseObject.createWithoutData(Trip.class, tripId));
     }
 
     public ArrayList<Image> getImages() {
@@ -64,7 +68,7 @@ public class Event extends ParseObject {
     }
 
     public ParseRelation<Image> imagesRelation() {
-        return getRelation("peopleAtEvent");
+        return getRelation("image");
     }
 
     public void addImage(Image image) {
@@ -88,6 +92,20 @@ public class Event extends ParseObject {
 
     public void removeUserFromEvent(User friend) {
         peopleAtEventRelation().remove(friend);
+        saveInBackground();
+    }
+
+    public ParseRelation<Marker> markerParseRelation() {
+        return getRelation("marker");
+    }
+
+    public void addMarker(Marker m) {
+        markerParseRelation().add(m);
+        saveInBackground();
+    }
+
+    public void removeMarker(Marker m) {
+        markerParseRelation().remove(m);
         saveInBackground();
     }
 
