@@ -8,6 +8,12 @@
 
     <include layout="@layout/toolbar_top" />
 
+    <GridView
+        android:id="@+id/gvImageGrid"
+        android:numColumns="2"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></GridView>
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
