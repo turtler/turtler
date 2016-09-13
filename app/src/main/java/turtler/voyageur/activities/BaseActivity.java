@@ -48,6 +48,7 @@ import butterknife.ButterKnife;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
+import turtler.voyageur.VoyageurApplication;
 import turtler.voyageur.fragments.ProfileFragment;
 import turtler.voyageur.models.Image;
 import turtler.voyageur.models.User;
@@ -56,7 +57,7 @@ import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.Constants;
 
 
-public class BaseActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks {
+public class BaseActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.bottom_toolbar) ActionMenuView mBottomBar;
 
@@ -89,13 +90,16 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
-
+        mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
         transferUtility = AmazonUtils.getTransferUtility(this);
         if (PermissionUtils.hasSelfPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION)) {
             getMyLocation();
-        } else {
-            ActivityCompat.requestPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION, REQUEST_GETMYLOCATION);
         }
+        else {
+            ActivityCompat.requestPermissions(this, PERMISSION_GETMYLOCATION, REQUEST_GETMYLOCATION);
+        }
+
+        startLocationUpdates();
 
         if (ContextCompat.checkSelfPermission(BaseActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == 1) {
             locationManager.requestLocationUpdates(
@@ -130,13 +134,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
     void getMyLocation() {
         locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .build();
-
-        mGoogleApiClient.connect();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -198,18 +195,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
         popup.show();
-    }
-
-    @Override
-    public void onConnected(Bundle dataBundle) {
-        // Display the connection status
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (location != null) {
-            Toast.makeText(this, "GPS location was found!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Current location was null, enable GPS on emulator!", Toast.LENGTH_SHORT).show();
-        }
-        startLocationUpdates();
     }
 
     protected void startLocationUpdates() {
@@ -313,7 +298,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                 } else {
                     Log.e("ERROR", "Failed to save marker", e);
                 }
-
             }
         });
 
@@ -329,17 +313,14 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                     Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
                 }
             }
-
             @Override
             public void onProgressChanged(int i, long l, long l1) {
 
             }
-
             @Override
             public void onError(int i, Exception e) {
                 Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
             }
-
         });
     }
 
@@ -359,13 +340,4 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
         String state = Environment.getExternalStorageState();
         return state.equals(Environment.MEDIA_MOUNTED);
     }
-
-    public void onConnectionSuspended(int i) {
-        if (i == CAUSE_SERVICE_DISCONNECTED) {
-            Toast.makeText(this, "Disconnected. Please re-connect.", Toast.LENGTH_SHORT).show();
-        } else if (i == CAUSE_NETWORK_LOST) {
-            Toast.makeText(this, "Network lost. Please re-connect.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 }
