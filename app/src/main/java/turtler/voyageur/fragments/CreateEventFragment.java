@@ -51,8 +51,10 @@ import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
+import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.Constants;
+import turtler.voyageur.utils.ImageUtils;
 
 /**
  * Created by carolinewong on 9/3/16.
@@ -73,7 +75,6 @@ public class CreateEventFragment extends DialogFragment {
     public final static int PICK_PHOTO_CODE = 1046;
     public String photoFileName = "photo";
     public final String APP_TAG = "VoyageurApp";
-    public final String AMAZON_S3_FILE_URL = "https://voyaging.s3.amazonaws.com/";
     private TransferUtility transferUtility;
 
     public CreateEventFragment() {}
@@ -107,12 +108,11 @@ public class CreateEventFragment extends DialogFragment {
         } else {
             /**TODO: set trip to be get current trip **/
         }
-        VoyageurApplication.getGoogleApiHelper();
-
-        if(VoyageurApplication.getGoogleApiHelper().isConnected())
-        {
+        if(VoyageurApplication.getGoogleApiHelper().isConnected()) {
             mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
         }
+        transferUtility = AmazonUtils.getTransferUtility(getContext());
+
     }
 
     @Override
@@ -129,7 +129,6 @@ public class CreateEventFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 final Event newEvent = new Event();
-
                 //set attributes for event
                 String caption = etCaption.getText().toString();
                 newEvent.setCaption(caption);
@@ -177,7 +176,7 @@ public class CreateEventFragment extends DialogFragment {
 
     public void showCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, getPhotoFileUri(photoFileName)); // set the image file name
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, ImageUtils.getPhotoFileUri(getContext(), photoFileName)); // set the image file name
         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
             startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
         }
@@ -189,40 +188,22 @@ public class CreateEventFragment extends DialogFragment {
         }
     }
 
-    // Returns uri for photo stored on disk with fileName
-    public Uri getPhotoFileUri(String fileName) {
-        if (isExternalStorageAvailable()) {
-            File mediaStorageDir = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
-            if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-                Log.d(APP_TAG, "failed to create directory");
-            }
-            return Uri.fromFile(new File(mediaStorageDir.getPath() + File.separator + fileName));
-        }
-        return null;
-    }
-
-    private boolean isExternalStorageAvailable() {
-        String state = Environment.getExternalStorageState();
-        return state.equals(Environment.MEDIA_MOUNTED);
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final Context self = getContext();
 
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == getActivity().RESULT_OK) {
-                Uri takenPhotoUri = getPhotoFileUri(photoFileName);
+                Uri takenPhotoUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName);
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
                 //resize bitmap or else may hit OutOfMemoryError
                 Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
-                // ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
                 ivPreview.setImageBitmap(resizedBitmap);
                 // save file
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
                 // new file for the resized bitmap
-                Uri resizedUri = getPhotoFileUri(photoFileName + UUID.randomUUID());
+                Uri resizedUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName + UUID.randomUUID());
                 File resizedFile = new File(resizedUri.getPath());
                 try {
                     resizedFile.createNewFile();
@@ -232,7 +213,7 @@ public class CreateEventFragment extends DialogFragment {
 
                     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (mLastLocation != null) {
-                        saveImageToParse(mLastLocation, resizedFile);
+                        ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -247,14 +228,13 @@ public class CreateEventFragment extends DialogFragment {
                 Bitmap selectedImage = null;
                 try {
                     selectedImage = MediaStore.Images.Media.getBitmap(self.getContentResolver(), photoUri);
-                    // ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
                     ivPreview.setImageBitmap(selectedImage);
                     File resizedFile = new File(photoUri.getPath());
                     resizedFile.createNewFile();
 
                     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (mLastLocation != null) {
-                        saveImageToParse(mLastLocation, resizedFile);
+                        ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
                     }
 
                 } catch (IOException e) {
@@ -268,62 +248,9 @@ public class CreateEventFragment extends DialogFragment {
         }
     }
 
-    public void saveImageToParse(Location mLastLocation, File resizedFile) {
-        String lat = Double.toString(mLastLocation.getLatitude());
-        String lon = Double.toString(mLastLocation.getLongitude());
-        Image parseImage = new Image();
-        parseImage.setLatitude(mLastLocation.getLatitude());
-        parseImage.setLongitude(mLastLocation.getLongitude());
-        parseImage.setPictureUrl(AMAZON_S3_FILE_URL + resizedFile.getName());
-        parseImage.setUser((User) ParseUser.getCurrentUser());
-
-        final Context self = getContext();
-
-        parseImage.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Toast.makeText(getActivity(), "Successfully saved image on Parse",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.e("ERROR", "Failed to save marker", e);
-                }
-
-            }
-        });
-
-        Toast.makeText(getContext(), lat + "," + lon, Toast.LENGTH_LONG).show();
-
-        TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
-                resizedFile);
-
-        observer.setTransferListener(new TransferListener() {
-            @Override
-            public void onStateChanged(int i, TransferState transferState) {
-                if (transferState.toString().equals("COMPLETED")) {
-                    Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int i, long l, long l1) {
-
-            }
-
-            @Override
-            public void onError(int i, Exception e) {
-                Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-
-        });
-    }
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        byte[] byteArray = getArguments().getByteArray("data");
-//        Bitmap bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-//        ivPreview.setImageBitmap(bmp);
     }
 
     @Override

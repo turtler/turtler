@@ -43,7 +43,7 @@ public class ImageUtils {
                     Toast.makeText(context, "Successfully saved image on Parse",
                             Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.e("ERROR", "Failed to save marker", e);
+                    Log.e("ERROR", "Failed to save image", e);
                 }
             }
         });
