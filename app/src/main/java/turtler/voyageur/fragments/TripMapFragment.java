@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -341,7 +342,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     // Display the alert that adds the marker
     private void showAlertDialogForPoint(final LatLng point) {
         // inflate message_item.xml view
-        View messageView = View.inflate(getContext(), R.layout.message_item, null);
+        View messageView = View.inflate(getContext(), R.layout.fragment_create_event, null);
         // Create alert dialog builder
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         // set message_item.xml to AlertDialog builder
@@ -351,69 +352,65 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         final AlertDialog alertDialog = alertDialogBuilder.create();
 
         // Configure dialog button (OK)
-        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK",
-                new DialogInterface.OnClickListener() {
+
+        Button btnSaveEvent = (Button) messageView.findViewById(R.id.btnSaveEvent);
+        btnSaveEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Define color of marker icon
+                BitmapDescriptor defaultMarker =
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                // Extract content from alert dialog
+                String title = ((EditText) alertDialog.findViewById(R.id.etTitle)).
+                        getText().toString();
+                String snippet = ((EditText) alertDialog.findViewById(R.id.etCaption)).
+                        getText().toString();
+                // Creates and adds marker to the map
+                com.google.android.gms.maps.model.Marker marker = map.addMarker(new MarkerOptions()
+                        .position(point)
+                        .title(title)
+                        .snippet(snippet)
+                        .icon(defaultMarker));
+                final Trip t = ParseObject.createWithoutData(Trip.class, tripId);
+                final Event event = new Event();
+                event.setCaption(snippet);
+                event.setCreator((User) ParseUser.getCurrentUser());
+                event.setTrip(t);
+                event.setTitle(title);
+                event.saveInBackground(new SaveCallback() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Define color of marker icon
-                        BitmapDescriptor defaultMarker =
-                                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                        // Extract content from alert dialog
-                        String title = ((EditText) alertDialog.findViewById(R.id.etTitle)).
-                                getText().toString();
-                        String snippet = ((EditText) alertDialog.findViewById(R.id.etSnippet)).
-                                getText().toString();
-                        // Creates and adds marker to the map
-                        com.google.android.gms.maps.model.Marker marker = map.addMarker(new MarkerOptions()
-                                .position(point)
-                                .title(title)
-                                .snippet(snippet)
-                                .icon(defaultMarker));
-                        final Trip t = ParseObject.createWithoutData(Trip.class, tripId);
-                        final Event event = new Event();
-                        event.setCaption(snippet);
-                        event.setCreator((User) ParseUser.getCurrentUser());
-                        event.setTrip(t);
-                        event.setTitle(title);
-                        event.saveInBackground(new SaveCallback() {
+                    public void done(ParseException e) {
+                        t.addEvent(event);
+                        Marker parseMarker = new Marker();
+                        parseMarker.setLatitude(point.latitude);
+                        parseMarker.setLongitude(point.longitude);
+                        parseMarker.setUser(ParseUser.getCurrentUser());
+                        parseMarker.setEvent(event);
+                        parseMarker.setTrip(tripId);
+                        parseMarker.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
-                                t.addEvent(event);
-                                Marker parseMarker = new Marker();
-                                parseMarker.setLatitude(point.latitude);
-                                parseMarker.setLongitude(point.longitude);
-                                parseMarker.setUser(ParseUser.getCurrentUser());
-                                parseMarker.setEvent(event);
-                                parseMarker.setTrip(tripId);
-                                parseMarker.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-                                            Toast.makeText(getContext(), "Successfully saved marker on Parse",
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Log.e("ERROR", "Failed to save marker", e);
-                                        }
-
-                                    }
-                                });
+                                if (e == null) {
+                                    Toast.makeText(getContext(), "Successfully saved marker on Parse",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.e("ERROR", "Failed to save marker", e);
+                                }
 
                             }
                         });
 
-
-                        dropPinEffect(marker);
-
-                        rectOptions.add(new LatLng(point.latitude, point.longitude));
-                        Polyline polyline = map.addPolyline(rectOptions);
                     }
                 });
 
-        // Configure dialog button (Cancel)
-        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) { dialog.cancel(); }
-                });
+
+                dropPinEffect(marker);
+                alertDialog.cancel();
+                rectOptions.add(new LatLng(point.latitude, point.longitude));
+                Polyline polyline = map.addPolyline(rectOptions);
+
+            }
+        });
 
         // Display the dialog
         alertDialog.show();

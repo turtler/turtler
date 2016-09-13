@@ -13,5 +13,6 @@
     <string name="end_date">End</string>
     <string name="friends">Friends</string>
     <string name="location">Location</string>
+    <string name="title">Title</string>
     <string name="caption">Caption</string>
 </resources>
