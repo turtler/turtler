@@ -23,19 +23,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.parse.ParseException;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -48,20 +41,18 @@ import butterknife.ButterKnife;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
+import turtler.voyageur.VoyageurApplication;
 import turtler.voyageur.fragments.ProfileFragment;
-import turtler.voyageur.models.Image;
 import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
-import turtler.voyageur.utils.Constants;
+import turtler.voyageur.utils.ImageUtils;
 
 
-public class BaseActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks {
+public class BaseActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.bottom_toolbar) ActionMenuView mBottomBar;
 
-    public final String APP_TAG = "VoyageurApp";
-    public final String AMAZON_S3_FILE_URL = "https://voyaging.s3.amazonaws.com/";
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
     public final static int PICK_PHOTO_CODE = 1046;
     public String photoFileName = "photo";
@@ -69,16 +60,11 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
     private String userEmail;
     private TransferUtility transferUtility;
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
     private static final String[] PERMISSION_GETMYLOCATION = new String[] {"android.permission.ACCESS_FINE_LOCATION","android.permission.ACCESS_COARSE_LOCATION"};
     private static final int REQUEST_GETMYLOCATION = 0;
-
-    double latitude;
-    double longitude;
-
     protected LocationManager locationManager;
 
     @Override
@@ -89,13 +75,16 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
-
+        mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
         transferUtility = AmazonUtils.getTransferUtility(this);
         if (PermissionUtils.hasSelfPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION)) {
             getMyLocation();
-        } else {
-            ActivityCompat.requestPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION, REQUEST_GETMYLOCATION);
         }
+        else {
+            ActivityCompat.requestPermissions(this, PERMISSION_GETMYLOCATION, REQUEST_GETMYLOCATION);
+        }
+
+        startLocationUpdates();
 
         if (ContextCompat.checkSelfPermission(BaseActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == 1) {
             locationManager.requestLocationUpdates(
@@ -130,13 +119,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
     void getMyLocation() {
         locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .build();
-
-        mGoogleApiClient.connect();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -200,18 +182,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
         popup.show();
     }
 
-    @Override
-    public void onConnected(Bundle dataBundle) {
-        // Display the connection status
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (location != null) {
-            Toast.makeText(this, "GPS location was found!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Current location was null, enable GPS on emulator!", Toast.LENGTH_SHORT).show();
-        }
-        startLocationUpdates();
-    }
-
     protected void startLocationUpdates() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
@@ -221,7 +191,7 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void showCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, getPhotoFileUri(photoFileName)); // set the image file name
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, ImageUtils.getPhotoFileUri(this, photoFileName)); // set the image file name
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
         }
@@ -235,11 +205,9 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        final Context self = this;
-
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Uri takenPhotoUri = getPhotoFileUri(photoFileName);
+                Uri takenPhotoUri = ImageUtils.getPhotoFileUri(this, photoFileName);
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
                 //resize bitmap or else may hit OutOfMemoryError
                 Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
@@ -247,7 +215,7 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
                 // new file for the resized bitmap
-                Uri resizedUri = getPhotoFileUri(photoFileName + UUID.randomUUID());
+                Uri resizedUri = ImageUtils.getPhotoFileUri(this, photoFileName + UUID.randomUUID());
                 File resizedFile = new File(resizedUri.getPath());
                 try {
                     resizedFile.createNewFile();
@@ -257,7 +225,7 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (mLastLocation != null) {
-                        saveImageToParse(mLastLocation, resizedFile);
+                        ImageUtils.saveImageToParse(this, transferUtility, mLastLocation, resizedFile);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -274,12 +242,10 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                     selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
                     File resizedFile = new File(photoUri.getPath());
                     resizedFile.createNewFile();
-
                     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (mLastLocation != null) {
-                        saveImageToParse(mLastLocation, resizedFile);
+                        ImageUtils.saveImageToParse(this, transferUtility, mLastLocation, resizedFile);
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -292,80 +258,4 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         }
     }
-
-    public void saveImageToParse(Location mLastLocation, File resizedFile) {
-        String lat = Double.toString(mLastLocation.getLatitude());
-        String lon = Double.toString(mLastLocation.getLongitude());
-        Image parseImage = new Image();
-        parseImage.setLatitude(mLastLocation.getLatitude());
-        parseImage.setLongitude(mLastLocation.getLongitude());
-        parseImage.setPictureUrl(AMAZON_S3_FILE_URL + resizedFile.getName());
-        parseImage.setUser((User) ParseUser.getCurrentUser());
-
-        final Context self = this;
-
-        parseImage.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Toast.makeText(BaseActivity.this, "Successfully saved image on Parse",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.e("ERROR", "Failed to save marker", e);
-                }
-
-            }
-        });
-
-        Toast.makeText(this, lat + "," + lon, Toast.LENGTH_LONG).show();
-
-        TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
-                resizedFile);
-
-        observer.setTransferListener(new TransferListener() {
-            @Override
-            public void onStateChanged(int i, TransferState transferState) {
-                if (transferState.toString().equals("COMPLETED")) {
-                    Toast.makeText(self, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int i, long l, long l1) {
-
-            }
-
-            @Override
-            public void onError(int i, Exception e) {
-                Toast.makeText(self, e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-
-        });
-    }
-
-    // Returns uri for photo stored on disk with fileName
-    public Uri getPhotoFileUri(String fileName) {
-        if (isExternalStorageAvailable()) {
-            File mediaStorageDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
-            if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-                Log.d(APP_TAG, "failed to create directory");
-            }
-            return Uri.fromFile(new File(mediaStorageDir.getPath() + File.separator + fileName));
-        }
-        return null;
-    }
-
-    private boolean isExternalStorageAvailable() {
-        String state = Environment.getExternalStorageState();
-        return state.equals(Environment.MEDIA_MOUNTED);
-    }
-
-    public void onConnectionSuspended(int i) {
-        if (i == CAUSE_SERVICE_DISCONNECTED) {
-            Toast.makeText(this, "Disconnected. Please re-connect.", Toast.LENGTH_SHORT).show();
-        } else if (i == CAUSE_NETWORK_LOST) {
-            Toast.makeText(this, "Network lost. Please re-connect.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 }
