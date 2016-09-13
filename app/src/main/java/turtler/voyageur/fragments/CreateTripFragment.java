@@ -4,26 +4,36 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.parse.ParseException;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import turtler.voyageur.R;
+import turtler.voyageur.adapters.UserItemArrayAdapter;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
+import turtler.voyageur.models.UserEntry;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
@@ -39,6 +49,7 @@ public class CreateTripFragment extends DialogFragment {
     @BindView(R.id.btnSaveTrip) Button btnSaveTrip;
     Date startDate;
     Date endDate;
+    ArrayList<String> friendsListIds = new ArrayList<String>();
 
     private Unbinder unbinder;
 
@@ -55,8 +66,50 @@ public class CreateTripFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_create_trip, container);
+        final View view = inflater.inflate(R.layout.fragment_create_trip, container);
         unbinder = ButterKnife.bind(this, view);
+        User u = (User) ParseUser.getCurrentUser();
+        try {
+            List<User> friends = u.getFriends().getQuery().find();
+            List<UserEntry> userEntries = new ArrayList<UserEntry>();
+            for (int i = 0; i < friends.size(); i++) {
+                UserEntry newUserEntry = new UserEntry();
+                newUserEntry.name = friends.get(i).getName();
+                newUserEntry.imgUrl = friends.get(i).getPictureUrl();
+                newUserEntry.objectID = friends.get(i).getObjectId();
+                userEntries.add(newUserEntry);
+            }
+            final AutoCompleteTextView textView = (AutoCompleteTextView)
+                    view.findViewById(R.id.etFriendsTrip);
+
+            UserItemArrayAdapter.UserRowListener listener = new UserItemArrayAdapter.UserRowListener() {
+                @Override
+                public void onClick(UserEntry u) {
+                    friendsListIds.add(u.objectID);
+                    TextView tvFriendsList = (TextView) view.findViewById(R.id.tvFriendsList);
+                    if (tvFriendsList != null) {
+                        String currText = "";
+                        if (tvFriendsList.getText() != "") {
+                            currText = tvFriendsList.getText() + ", ";
+                        }
+
+                        tvFriendsList.setText(currText + u.name);
+                    }
+                    textView.setText("");
+                    textView.dismissDropDown();
+                }
+            };
+
+            UserItemArrayAdapter adapter = new UserItemArrayAdapter(getContext(),
+                    R.layout.item_dropdown_user, userEntries, listener);
+
+            textView.setAdapter(adapter);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
         setupListeners();
         return view;
     }
@@ -91,6 +144,12 @@ public class CreateTripFragment extends DialogFragment {
                 }
                 if (endDate != null) {
                     newTrip.setEndDate(endDate);
+                }
+                if (friendsListIds.size() > 0) {
+                    for (int i = 0; i < friendsListIds.size(); i++) {
+                        String friendId = friendsListIds.get(i);
+                        newTrip.addTripFriend(ParseUser.createWithoutData(User.class, friendId));
+                    }
                 }
                 final User user = (User) User.getCurrentUser();
                 newTrip.saveInBackground(new SaveCallback() {

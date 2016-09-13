@@ -243,8 +243,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
                 //resize bitmap or else may hit OutOfMemoryError
                 Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
-                ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
-                ivPreview.setImageBitmap(resizedBitmap);
                 // save file
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
@@ -274,8 +272,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                 Bitmap selectedImage = null;
                 try {
                     selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-                    ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
-                    ivPreview.setImageBitmap(selectedImage);
                     File resizedFile = new File(photoUri.getPath());
                     resizedFile.createNewFile();
 
@@ -287,9 +283,6 @@ public class BaseActivity extends AppCompatActivity implements GoogleApiClient.C
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                // Load the selected image into a preview
-                ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
-                ivPreview.setImageBitmap(selectedImage);
             } else {
                 Toast.makeText(this, "No picture chosen!", Toast.LENGTH_SHORT).show();
             }
