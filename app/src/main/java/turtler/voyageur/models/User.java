@@ -23,12 +23,16 @@ public class User extends ParseUser {
         return getString("name");
     }
 
+    public String getfID() {
+        return getString("fID");
+    }
+
     public String getPictureUrl() {
         return getString("pictureUrl");
     }
 
-    public ArrayList<User> getFriends() {
-        return friends;
+    public ParseRelation<User> getFriends() {
+        return getRelation("friends");
     }
 
     public ArrayList<Trip> getTrips() {
@@ -40,6 +44,15 @@ public class User extends ParseUser {
     public String pictureUrl;
     public ArrayList<User> friends;
     public ArrayList<Trip> trips;
+    public String fID;
+
+    public void setName(String name) {
+        put("name", name);
+    }
+
+    public void setfID(String fID) {
+        put("fID", fID);
+    }
 
     public ParseRelation<Trip> getTripsRelation() {
         return getRelation("trips");
