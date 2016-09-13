@@ -9,6 +9,7 @@ import com.parse.ParseObject;
 import com.parse.interceptors.ParseLogInterceptor;
 
 import turtler.voyageur.models.Event;
+import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
@@ -24,6 +25,7 @@ public class VoyageurApplication extends Application {
         ParseObject.registerSubclass(User.class);
         ParseObject.registerSubclass(Trip.class);
         ParseObject.registerSubclass(Event.class);
+        ParseObject.registerSubclass(Image.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("voyaging") // should correspond to APP_ID env variable
