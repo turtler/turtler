@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="20dp"
-        android:text="Title:" />
+        android:text="Event Title:" />
 
     <EditText
         android:id="@+id/etTitle"
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvTitle"
         android:paddingTop="20dp"
-        android:text="Snippet:" />
+        android:text="Comment:" />
 
     <EditText
         android:id="@+id/etSnippet"

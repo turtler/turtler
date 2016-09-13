@@ -9,7 +9,6 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -17,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -49,10 +49,10 @@ import java.util.List;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 import turtler.voyageur.R;
-import turtler.voyageur.activities.MapActivity;
-import turtler.voyageur.fragments.TripMapFragmentPermissionsDispatcher;
+import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
+import turtler.voyageur.models.User;
 
 /**
  * Created by cwong on 9/11/16.
@@ -341,40 +341,79 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
 
     // Display the alert that adds the marker
     private void showAlertDialogForPoint(final LatLng point) {
-        // Define color of marker icon
-        BitmapDescriptor defaultMarker =
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-        // Extract content from alert dialog
-        // Creates and adds marker to the map
-        com.google.android.gms.maps.model.Marker marker = map.addMarker(new MarkerOptions()
-                .position(point)
-                .title("t")
-                .snippet("s")
-                .icon(defaultMarker));
+        // inflate message_item.xml view
+        View messageView = View.inflate(getContext(), R.layout.fragment_create_event, null);
+        // Create alert dialog builder
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        // set message_item.xml to AlertDialog builder
+        alertDialogBuilder.setView(messageView);
 
-        Marker parseMarker = new Marker();
-        parseMarker.setLatitudeKey(point.latitude);
-        parseMarker.setLongitudeKey(point.longitude);
-        parseMarker.setTrip(tripId);
-        parseMarker.setUser(ParseUser.getCurrentUser());
-        parseMarker.saveInBackground(new SaveCallback() {
+        // Create alert dialog
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // Configure dialog button (OK)
+
+        Button btnSaveEvent = (Button) messageView.findViewById(R.id.btnSaveEvent);
+        btnSaveEvent.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Toast.makeText(getContext(), "Successfully saved marker on Parse",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.e("ERROR", "Failed to save marker", e);
-                }
+            public void onClick(View view) {
+                // Define color of marker icon
+                BitmapDescriptor defaultMarker =
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                // Extract content from alert dialog
+                String title = ((EditText) alertDialog.findViewById(R.id.etTitle)).
+                        getText().toString();
+                String snippet = ((EditText) alertDialog.findViewById(R.id.etCaption)).
+                        getText().toString();
+                // Creates and adds marker to the map
+                com.google.android.gms.maps.model.Marker marker = map.addMarker(new MarkerOptions()
+                        .position(point)
+                        .title(title)
+                        .snippet(snippet)
+                        .icon(defaultMarker));
+                final Trip t = ParseObject.createWithoutData(Trip.class, tripId);
+                final Event event = new Event();
+                event.setCaption(snippet);
+                event.setCreator((User) ParseUser.getCurrentUser());
+                event.setTrip(t);
+                event.setTitle(title);
+                event.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        t.addEvent(event);
+                        Marker parseMarker = new Marker();
+                        parseMarker.setLatitude(point.latitude);
+                        parseMarker.setLongitude(point.longitude);
+                        parseMarker.setUser(ParseUser.getCurrentUser());
+                        parseMarker.setEvent(event);
+                        parseMarker.setTrip(tripId);
+                        parseMarker.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    Toast.makeText(getContext(), "Successfully saved marker on Parse",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.e("ERROR", "Failed to save marker", e);
+                                }
+
+                            }
+                        });
+
+                    }
+                });
+
+
+                dropPinEffect(marker);
+                alertDialog.cancel();
+                rectOptions.add(new LatLng(point.latitude, point.longitude));
+                Polyline polyline = map.addPolyline(rectOptions);
 
             }
         });
 
-        dropPinEffect(marker);
-
-        rectOptions.add(new LatLng(point.latitude, point.longitude));
-        Polyline polyline = map.addPolyline(rectOptions);
-
+        // Display the dialog
+        alertDialog.show();
     }
 
     private void dropPinEffect(final com.google.android.gms.maps.model.Marker marker) {

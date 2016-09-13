@@ -16,6 +16,8 @@ public class Event extends ParseObject {
     public ArrayList<User> peopleAtEvent;
     public String caption;
     public User eventCreator;
+    public String title;
+    public Marker marker;
 
     public Event() {
         super();
@@ -51,6 +53,14 @@ public class Event extends ParseObject {
 
     public void setCreator(User user) {
         put("user", user);
+    }
+
+    public String getTitle() {
+        return getString("title");
+    }
+
+    public void setTitle(String title) {
+        put("title", title);
     }
 
     public ParseRelation<Image> imagesRelation() {
