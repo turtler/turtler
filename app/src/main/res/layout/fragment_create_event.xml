@@ -93,4 +93,37 @@
         android:layout_alignLeft="@+id/tvCaptionLabel"
         android:layout_alignStart="@+id/tvCaptionLabel" />
 
+    <AutoCompleteTextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:id="@+id/etFriendsTripEvent"
+        android:layout_below="@+id/tvFriendsListEvent"
+        android:layout_marginLeft="10dp"
+        android:layout_alignLeft="@+id/etDateTime"
+        android:layout_alignStart="@+id/etDateTime"
+        android:layout_alignRight="@+id/etDateTime"
+        android:layout_alignEnd="@+id/etDateTime" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/friends"
+        android:id="@+id/tvFriendsTripEvent"
+        android:layout_alignBottom="@+id/etFriendsTripEvent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:id="@+id/tvFriendsListEvent"
+        android:layout_alignLeft="@+id/tvCaptionLabel"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="false"
+        android:layout_below="@+id/tvDateTimeLabel"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="false" />
+
 </RelativeLayout>
