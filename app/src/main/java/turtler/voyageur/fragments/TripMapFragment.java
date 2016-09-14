@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,7 +63,9 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
-        GoogleMap.OnMapLongClickListener {
+        GoogleMap.OnMapLongClickListener,
+        CreateEventFragment.CreateEventFragmentListener {
+
     public static TripMapFragment newInstance() {
         Bundle args = new Bundle();
         TripMapFragment fragment = new TripMapFragment();
@@ -78,6 +81,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
     private PolylineOptions rectOptions = new PolylineOptions();
     private String user_email;
+    private LatLng selectedPoint;
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
@@ -334,81 +338,37 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
 
     @Override
     public void onMapLongClick(LatLng point) {
-        // Custom code here...
-        // Display the alert dialog
         showAlertDialogForPoint(point);
     }
 
     // Display the alert that adds the marker
     private void showAlertDialogForPoint(final LatLng point) {
-        // inflate message_item.xml view
-        View messageView = View.inflate(getContext(), R.layout.fragment_create_event, null);
-        // Create alert dialog builder
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        // set message_item.xml to AlertDialog builder
-        alertDialogBuilder.setView(messageView);
+        //show CreateEventFragment
+        selectedPoint = point;
+        this.showCreateEventFragment(point.latitude, point.longitude);
+    }
 
-        // Create alert dialog
-        final AlertDialog alertDialog = alertDialogBuilder.create();
+    private void showCreateEventFragment(Double lat, Double lon) {
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        CreateEventFragment eventDialogFragment = CreateEventFragment.newInstance(tripId, lat, lon);
+        eventDialogFragment.setTargetFragment(TripMapFragment.this, 300);
+        eventDialogFragment.show(fm, "fragment_create_event");
+    }
 
-        // Configure dialog button (OK)
-        Button btnSaveEvent = (Button) messageView.findViewById(R.id.btnSaveEvent);
-        btnSaveEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Define color of marker icon
-                BitmapDescriptor defaultMarker =
-                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                // Extract content from alert dialog
-                String title = ((EditText) alertDialog.findViewById(R.id.etTitle)).
-                        getText().toString();
-                String snippet = ((EditText) alertDialog.findViewById(R.id.etCaption)).
-                        getText().toString();
-                // Creates and adds marker to the map
-                com.google.android.gms.maps.model.Marker marker = map.addMarker(new MarkerOptions()
-                        .position(point)
-                        .title(title)
-                        .snippet(snippet)
-                        .icon(defaultMarker));
-                final Trip t = ParseObject.createWithoutData(Trip.class, tripId);
-                final Event event = new Event();
-                event.setCaption(snippet);
-                event.setCreator((User) ParseUser.getCurrentUser());
-                event.setTrip(tripId);
-                event.setTitle(title);
-                event.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        t.addEvent(event);
-                        Marker parseMarker = new Marker();
-                        parseMarker.setLatitude(point.latitude);
-                        parseMarker.setLongitude(point.longitude);
-                        parseMarker.setUser(ParseUser.getCurrentUser());
-                        parseMarker.setEvent(event);
-                        parseMarker.setTrip(tripId);
-                        event.addMarker(parseMarker);
-                        parseMarker.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e == null) {
-                                    Toast.makeText(getContext(), "Successfully saved marker on Parse",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Log.e("ERROR", "Failed to save marker", e);
-                                }
-                            }
-                        });
-                    }
-                });
-                dropPinEffect(marker);
-                alertDialog.cancel();
-                rectOptions.add(new LatLng(point.latitude, point.longitude));
-                Polyline polyline = map.addPolyline(rectOptions);
+    @Override
+    public void onFinishCreateEventDialog(Event event) {
+        //add marker and polyline to map
+        BitmapDescriptor defaultMarker =
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
 
-            }
-        });
-        // Display the dialog
-        alertDialog.show();
+        com.google.android.gms.maps.model.Marker marker = map.addMarker(new MarkerOptions()
+                .position(selectedPoint)
+                .title(event.getTitle())
+                .snippet(event.getCaption())
+                .icon(defaultMarker));
+        dropPinEffect(marker);
+        rectOptions.add(new LatLng(selectedPoint.latitude, selectedPoint.longitude));
+        map.addPolyline(rectOptions);
     }
 
     private void dropPinEffect(final com.google.android.gms.maps.model.Marker marker) {
