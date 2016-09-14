@@ -1,6 +1,7 @@
 package turtler.voyageur.activities;
 
 import android.Manifest;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,22 +22,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -45,9 +41,8 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
 import turtler.voyageur.VoyageurApplication;
-import turtler.voyageur.adapters.ImageGridAdapter;
+import turtler.voyageur.fragments.HomeFragment;
 import turtler.voyageur.fragments.ProfileFragment;
-import turtler.voyageur.models.Image;
 import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
@@ -56,7 +51,6 @@ import turtler.voyageur.utils.ImageUtils;
 
 public class BaseActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar mToolbar;
-    @BindView(R.id.gvImageGrid) GridView gridView;
     @BindView(R.id.bottom_toolbar) ActionMenuView mBottomBar;
 
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
@@ -67,7 +61,6 @@ public class BaseActivity extends AppCompatActivity {
     private TransferUtility transferUtility;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private ImageGridAdapter gridAdapter;
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
     private static final String[] PERMISSION_GETMYLOCATION = new String[] {"android.permission.ACCESS_FINE_LOCATION","android.permission.ACCESS_COARSE_LOCATION"};
@@ -82,8 +75,6 @@ public class BaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
-        gridAdapter = new ImageGridAdapter(this, R.layout.item_grid, getImages());
-        gridView.setAdapter(gridAdapter);
 
         mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
         transferUtility = AmazonUtils.getTransferUtility(this);
@@ -122,22 +113,10 @@ public class BaseActivity extends AppCompatActivity {
             Intent i = new Intent(BaseActivity.this, LoginActivity.class);
             startActivityForResult(i, LOGIN_REQUEST_CODE);
         }
-    }
-
-    public ArrayList<Image> getImages() {
-        final ArrayList<Image> imageItems = new ArrayList<Image>();
-        final ParseQuery<Image> parseImageQuery = new ParseQuery("Image");
-        try {
-            List<Image> parseImages = parseImageQuery.find();
-            for (int i = 0; i < parseImages.size(); i++) {
-                Image parseImg = parseImages.get(i);
-                imageItems.add(parseImg);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return imageItems;
+        //set default fragment
+        FragmentTransaction ftHome = getSupportFragmentManager().beginTransaction();
+        ftHome.replace(R.id.frame_layout, HomeFragment.newInstance());
+        ftHome.commit();
     }
 
     @SuppressWarnings("all")
@@ -149,8 +128,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // getMenuInflater().inflate(R.menu.top_nav_bar, menu); //TODO: Make top nav bar layout
-        ActionMenuView bottomBar = (ActionMenuView)findViewById(R.id.bottom_toolbar);
-        Menu bottomMenu = bottomBar.getMenu();
+        Menu bottomMenu = mBottomBar.getMenu();
         getMenuInflater().inflate(R.menu.bottom_nav_bar, bottomMenu);
         for (int i = 0; i < bottomMenu.size(); i++) {
             bottomMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -167,16 +145,17 @@ public class BaseActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_menu_home:
-                Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
-                startActivity(homeIntent);
+                FragmentTransaction ftHome = getSupportFragmentManager().beginTransaction();
+                ftHome.replace(R.id.frame_layout, HomeFragment.newInstance());
+                ftHome.commit();
                 return true;
             case R.id.item_menu_camera:
                 showCameraOptions();
                 return true;
             case R.id.item_menu_profile:
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.frame_layout, ProfileFragment.newInstance());
-                ft.commit();
+                FragmentTransaction ftProf = getSupportFragmentManager().beginTransaction();
+                ftProf.replace(R.id.frame_layout, ProfileFragment.newInstance());
+                ftProf.commit();
                 return true;
             case R.id.item_logout:
                 Intent logoutActivity = new Intent(getApplicationContext(), LoginActivity.class);
