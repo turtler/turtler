@@ -352,7 +352,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         final AlertDialog alertDialog = alertDialogBuilder.create();
 
         // Configure dialog button (OK)
-
         Button btnSaveEvent = (Button) messageView.findViewById(R.id.btnSaveEvent);
         btnSaveEvent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -397,14 +396,10 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                                 } else {
                                     Log.e("ERROR", "Failed to save marker", e);
                                 }
-
                             }
                         });
-
                     }
                 });
-
-
                 dropPinEffect(marker);
                 alertDialog.cancel();
                 rectOptions.add(new LatLng(point.latitude, point.longitude));
@@ -412,7 +407,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
 
             }
         });
-
         // Display the dialog
         alertDialog.show();
     }
@@ -448,5 +442,4 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
             }
         });
     }
-
 }
