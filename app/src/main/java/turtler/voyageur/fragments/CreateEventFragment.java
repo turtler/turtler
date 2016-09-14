@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -31,15 +32,19 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -47,11 +52,13 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import turtler.voyageur.R;
 import turtler.voyageur.VoyageurApplication;
+import turtler.voyageur.adapters.UserItemArrayAdapter;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
+import turtler.voyageur.models.UserEntry;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.ImageUtils;
@@ -84,6 +91,7 @@ public class CreateEventFragment extends DialogFragment {
     public final static int PICK_PHOTO_CODE = 1046;
     public String photoFileName = "photo";
     private TransferUtility transferUtility;
+    ArrayList<String> friendsListIds = new ArrayList<String>();
 
     public CreateEventFragment() {}
 
@@ -143,10 +151,49 @@ public class CreateEventFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_create_event, container, false);
+        final View view = inflater.inflate(R.layout.fragment_create_event, container, false);
         getDialog().setCanceledOnTouchOutside(true);
         unbinder = ButterKnife.bind(this, view);
         etDateTime.setText(TimeFormatUtils.dateTimeToString(calendar.getTime())); //automatically shows current time
+        final AutoCompleteTextView textView = (AutoCompleteTextView)
+                view.findViewById(R.id.etFriendsTripEvent);
+        Trip t = ParseObject.createWithoutData(Trip.class, tripId);
+        try {
+            List<User> friends = t.getTripFriendsRelation().getQuery().find();
+            List<UserEntry> userEntries = new ArrayList<UserEntry>();
+            for (int i = 0; i < friends.size(); i++) {
+                UserEntry newUserEntry = new UserEntry();
+                newUserEntry.name = friends.get(i).getName();
+                newUserEntry.imgUrl = friends.get(i).getPictureUrl();
+                newUserEntry.objectID = friends.get(i).getObjectId();
+                userEntries.add(newUserEntry);
+            }
+            UserItemArrayAdapter.UserRowListener listener = new UserItemArrayAdapter.UserRowListener() {
+                @Override
+                public void onClick(UserEntry u) {
+                    friendsListIds.add(u.objectID);
+                    TextView tvFriendsList = (TextView) view.findViewById(R.id.tvFriendsListEvent);
+                    if (tvFriendsList != null) {
+                        String currText = "";
+                        if (tvFriendsList.getText() != "") {
+                            currText = tvFriendsList.getText() + ", ";
+                        }
+
+                        tvFriendsList.setText(currText + u.name);
+                    }
+                    textView.setText("");
+                    textView.dismissDropDown();
+                }
+            };
+
+            UserItemArrayAdapter adapter = new UserItemArrayAdapter(getContext(),
+                    R.layout.item_dropdown_user, userEntries, listener);
+
+            textView.setAdapter(adapter);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         setupListeners();
         return view;
     }
@@ -280,6 +327,7 @@ public class CreateEventFragment extends DialogFragment {
     }
 
     @Override
+    @SuppressWarnings("all")
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final Context self = getContext();
 
