@@ -75,6 +75,7 @@ public class CreateEventFragment extends DialogFragment {
     Trip currentTrip;
     String tripId;
     Location mLastLocation;
+    Location chosenLocation;
     Bitmap selectedImageBitmap;
     Image image;
     private Unbinder unbinder;
@@ -98,10 +99,28 @@ public class CreateEventFragment extends DialogFragment {
         return frag;
     }
 
+    public static CreateEventFragment newInstance(String tripId, Double lat, Double lon) {
+        CreateEventFragment frag = new CreateEventFragment();
+        Bundle args = new Bundle();
+        args.putString("tripId", tripId);
+        args.putDouble("chosenLat", lat);
+        args.putDouble("chosenLong", lon);
+        frag.setArguments(args);
+        return frag;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tripId = getArguments().getString("tripId", "");
+        Double chosenLat = getArguments().getDouble("chosenLat");
+        Double chosenLong = getArguments().getDouble("chosenLong");
+        if (chosenLat != null && chosenLong != null) {
+            chosenLocation = new Location("");
+            chosenLocation.setLatitude(chosenLat);
+            chosenLocation.setLongitude(chosenLong);
+        }
+
         if (tripId != "") {
             ParseQuery<Trip> query = ParseQuery.getQuery(Trip.class);
             query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK); // or CACHE_ONLY
@@ -156,8 +175,13 @@ public class CreateEventFragment extends DialogFragment {
                     @Override
                     public void done(ParseException e) {
                         final Marker parseMarker = new Marker();
-                        parseMarker.setLatitude(mLastLocation.getLatitude());
-                        parseMarker.setLongitude(mLastLocation.getLongitude());
+                        if (chosenLocation != null) {
+                            parseMarker.setLatitude(chosenLocation.getLatitude());
+                            parseMarker.setLongitude(chosenLocation.getLongitude());
+                        } else {
+                            parseMarker.setLatitude(mLastLocation.getLatitude());
+                            parseMarker.setLongitude(mLastLocation.getLongitude());
+                        }
                         parseMarker.setUser(user);
                         parseMarker.setEvent(newEvent);
                         parseMarker.setTrip(tripId);
