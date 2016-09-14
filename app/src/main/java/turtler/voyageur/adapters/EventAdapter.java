@@ -1,6 +1,8 @@
 package turtler.voyageur.adapters;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -16,8 +19,10 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
+import turtler.voyageur.fragments.DetailEvent;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
+import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
  * Created by cwong on 9/11/16.
@@ -26,15 +31,26 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     private ArrayList<Event> mEvents;
     private Context mContext;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.ivFirstImage) ImageView ivfirstImage;
         @BindView(R.id.tvTitle) TextView tvTitle;
         @BindView(R.id.tvCaption) TextView tvCaption;
-
+        @BindView(R.id.tvDate) TextView tvDate;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getLayoutPosition();
+            ParseObject event = mEvents.get(position);
+            FragmentActivity activity = (FragmentActivity)(mContext);
+            FragmentManager fm = activity.getSupportFragmentManager();
+            DetailEvent alertDialog = DetailEvent.newInstance(event.getObjectId());
+            alertDialog.show(fm, "fragment_detail_event");
         }
     }
 
@@ -66,6 +82,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }
         viewHolder.tvCaption.setText(ev.getCaption());
         viewHolder.tvTitle.setText(ev.getTitle());
+        if (ev.getDate() != null) {
+            viewHolder.tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
+        }
     }
 
     @Override
