@@ -48,8 +48,9 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ParseUser.getCurrentUser() != null) {
-                    ParseUser.getCurrentUser().logOut();
+                User user = (User) User.getCurrentUser();
+                if (user != null) {
+                    user.logOut();
                 }
                 List<String> permissions = Arrays.asList("user_friends", "email", "public_profile");
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback() {

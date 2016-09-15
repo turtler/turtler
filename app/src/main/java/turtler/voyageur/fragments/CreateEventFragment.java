@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.util.TimeUtils;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -34,7 +33,6 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
@@ -43,7 +41,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -237,7 +234,9 @@ public class CreateEventFragment extends DialogFragment {
                             public void done(ParseException e) {
                                 currentTrip.addEvent(newEvent);
                                 newEvent.addMarker(parseMarker);
-                                newEvent.addImage(user.createWithoutData(Image.class, image.getObjectId()));
+                                if (image != null) {
+                                    newEvent.addImage(user.createWithoutData(Image.class, image.getObjectId()));
+                                }
                                 CreateEventFragmentListener listener = (CreateEventFragmentListener) getTargetFragment();
                                 listener.onFinishCreateEventDialog(newEvent);
                                 dismiss();
