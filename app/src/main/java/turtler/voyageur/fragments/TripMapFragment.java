@@ -3,7 +3,6 @@ package turtler.voyageur.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
@@ -11,14 +10,11 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -43,7 +39,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -80,8 +75,8 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
     private PolylineOptions rectOptions = new PolylineOptions();
-    private String user_email;
     private LatLng selectedPoint;
+    private User user;
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
@@ -93,7 +88,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         super.onCreate(savedInstanceState);
         View view = inflater.inflate(R.layout.activity_map, container, false);
         tripId = getActivity().getIntent().getStringExtra("tripId");
-        user_email = ParseUser.getCurrentUser().getEmail();
+
         mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -345,7 +340,9 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     private void showAlertDialogForPoint(final LatLng point) {
         //show CreateEventFragment
         selectedPoint = point;
-        this.showCreateEventFragment(point.latitude, point.longitude);
+        if (user.getEmail().equals(ParseUser.getCurrentUser().getEmail())) {
+            this.showCreateEventFragment(point.latitude, point.longitude);
+        }
     }
 
     private void showCreateEventFragment(Double lat, Double lon) {

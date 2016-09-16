@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -64,8 +65,31 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
     }
 
     public void populateTrips() {
-        User currentUser = (User) ParseUser.getCurrentUser();
-        ParseRelation<ParseObject> tripRelation = currentUser.getRelation("trips");
+        User currentUser;
+        if (getArguments() != null && getArguments().containsKey("email")) {
+            fabAddTrip.setVisibility(View.GONE);
+            String email = getArguments().getString("email");
+            ParseQuery<User> pq = new ParseQuery("_User");
+            pq.whereEqualTo("email", email);
+            pq.findInBackground(new FindCallback<User>() {
+                @Override
+                public void done(List<User> users, ParseException e) {
+                    if (users != null && users.size() > 0) {
+                        User user = users.get(0);
+                        ParseRelation<ParseObject> tripRelation = user.getRelation("trips");
+                        loadTrip(tripRelation);
+                    }
+                }
+            });
+        } else {
+            fabAddTrip.setVisibility(View.VISIBLE);
+            currentUser = (User) ParseUser.getCurrentUser();
+            ParseRelation<ParseObject> tripRelation = currentUser.getRelation("trips");
+            loadTrip(tripRelation);
+        }
+    }
+
+    public void loadTrip(ParseRelation<ParseObject> tripRelation) {
         try {
             int curSize = tripAdapter.getItemCount();
             ParseQuery query = tripRelation.getQuery();
