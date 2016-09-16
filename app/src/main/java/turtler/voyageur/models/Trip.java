@@ -60,10 +60,6 @@ public class Trip extends ParseObject {
         return events;
     }
 
-    public User getTripCreator() {
-        return tripCreator;
-    }
-
     public ParseRelation<User> getTripFriendsRelation() {
         return getRelation("tripFriends");
     }
