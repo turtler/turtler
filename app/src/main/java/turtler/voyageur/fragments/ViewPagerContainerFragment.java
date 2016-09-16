@@ -19,8 +19,8 @@ import turtler.voyageur.adapters.TripFragmentPageAdapter;
  */
 public class ViewPagerContainerFragment extends Fragment {
     PagerSlidingTabStrip tabsStrip;
-    ViewPager viewPager;
-
+    public ViewPager viewPager;
+    TripFragmentPageAdapter pagerAdapter;
     public ViewPagerContainerFragment() {   }
 
     @Override
@@ -29,7 +29,7 @@ public class ViewPagerContainerFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_view_pager_container, container, false);
 
-        TripFragmentPageAdapter pagerAdapter = new TripFragmentPageAdapter(getActivity().getSupportFragmentManager());
+        pagerAdapter = new TripFragmentPageAdapter(getActivity().getSupportFragmentManager());
         viewPager = (ViewPager) root.findViewById(R.id.viewPager);
         tabsStrip = (PagerSlidingTabStrip) root.findViewById(R.id.tabStrip);
 
@@ -38,4 +38,9 @@ public class ViewPagerContainerFragment extends Fragment {
 
         return root;
     }
+
+    public TripFragmentPageAdapter getAdapter() {
+        return pagerAdapter;
+    }
 }
+

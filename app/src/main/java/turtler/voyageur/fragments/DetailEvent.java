@@ -9,12 +9,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,6 +27,7 @@ import butterknife.Unbinder;
 import turtler.voyageur.R;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
+import turtler.voyageur.models.Marker;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
@@ -79,7 +85,7 @@ public class DetailEvent extends DialogFragment {
         }
     }
 
-    public void setEventDetailLayout(Event ev) {
+    public void setEventDetailLayout(final Event ev) {
         ArrayList<Image> images = new ArrayList<>();
         try {
             images = (ArrayList<Image>) ev.imagesRelation().getQuery().find();
@@ -94,6 +100,29 @@ public class DetailEvent extends DialogFragment {
         if (ev.getDate() != null) {
             tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
         }
+        tvTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ViewPagerContainerFragment vpFrag = (ViewPagerContainerFragment) getActivity().getSupportFragmentManager().findFragmentByTag("view_pager");
+                dismiss();
+                try {
+                    List<Marker> markers = ev.getMarkerParseRelation().getQuery().find();
+                    if (markers != null) {
+                        Marker m = markers.get(0);
+                        vpFrag.viewPager.setCurrentItem(1);
+                        TripMapFragment mapFrag = (TripMapFragment) getActivity().getSupportFragmentManager().findFragmentByTag("android:switcher:"+R.id.viewPager+":1");
+                        GoogleMap map = mapFrag.getMap();
+                        CameraUpdate c = CameraUpdateFactory.newLatLng(new LatLng(m.getLatitudeKey(), m.getLongitudeKey()));
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                        map.moveCamera(c);
+                        map.animateCamera(zoom);
+                    }
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

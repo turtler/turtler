@@ -105,17 +105,17 @@ public class Event extends ParseObject {
         saveInBackground();
     }
 
-    public ParseRelation<Marker> markerParseRelation() {
+    public ParseRelation<Marker> getMarkerParseRelation() {
         return getRelation("marker");
     }
 
     public void addMarker(Marker m) {
-        markerParseRelation().add(m);
+        getMarkerParseRelation().add(m);
         saveInBackground();
     }
 
     public void removeMarker(Marker m) {
-        markerParseRelation().remove(m);
+        getMarkerParseRelation().remove(m);
         saveInBackground();
     }
 
