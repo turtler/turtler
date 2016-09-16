@@ -1,7 +1,6 @@
 package turtler.voyageur.activities;
 
 import android.Manifest;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,8 +10,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -28,11 +30,17 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -41,15 +49,19 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
 import turtler.voyageur.VoyageurApplication;
+import turtler.voyageur.fragments.CreateEventFragment;
 import turtler.voyageur.fragments.HomeFragment;
 import turtler.voyageur.fragments.ProfileFragment;
+import turtler.voyageur.models.Event;
+import turtler.voyageur.models.Image;
+import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.ImageUtils;
 
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity implements CreateEventFragment.CreateEventFragmentListener{
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.bottom_toolbar) ActionMenuView mBottomBar;
 
@@ -66,6 +78,13 @@ public class BaseActivity extends AppCompatActivity {
     private static final String[] PERMISSION_GETMYLOCATION = new String[] {"android.permission.ACCESS_FINE_LOCATION","android.permission.ACCESS_COARSE_LOCATION"};
     private static final int REQUEST_GETMYLOCATION = 0;
     protected LocationManager locationManager;
+    private Trip currentTrip;
+    private boolean toCreateEventFragment;
+    private String chosenImageId;
+    private Double currentLat;
+    private Double currentLong;
+    private Bitmap imageBitmap;
+
 
     @Override
     @SuppressWarnings("all")
@@ -76,6 +95,7 @@ public class BaseActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
+        toCreateEventFragment = false;
         mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
         transferUtility = AmazonUtils.getTransferUtility(this);
         if (PermissionUtils.hasSelfPermissions(BaseActivity.this, PERMISSION_GETMYLOCATION)) {
@@ -117,6 +137,24 @@ public class BaseActivity extends AppCompatActivity {
         FragmentTransaction ftHome = getSupportFragmentManager().beginTransaction();
         ftHome.replace(R.id.frame_layout, HomeFragment.newInstance());
         ftHome.commit();
+
+        Calendar cal = new GregorianCalendar();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        Date today = cal.getTime();
+
+        ParseQuery<Trip> tripParseQuery = ParseQuery.getQuery("Trip");
+        tripParseQuery.whereLessThan("startDate", today);
+        tripParseQuery.whereGreaterThanOrEqualTo("endDate", today);
+        tripParseQuery.getFirstInBackground(new GetCallback<Trip>() {
+            @Override
+            public void done(Trip object, ParseException e) {
+                currentTrip = object;
+            }
+        });
     }
 
     @SuppressWarnings("all")
@@ -229,9 +267,16 @@ public class BaseActivity extends AppCompatActivity {
                     fos.close();
 
                     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    //get current trip
                     if (mLastLocation != null) {
-                        ImageUtils.saveImageToParse(this, transferUtility, mLastLocation, resizedFile);
+                        Image image = ImageUtils.saveImageToParseNotInBackground(this, transferUtility, mLastLocation, resizedFile);
+                        currentLat = mLastLocation.getLatitude();
+                        currentLong = mLastLocation.getLongitude();
+                        toCreateEventFragment = true;
+                        chosenImageId = image.getObjectId();
+                        imageBitmap = resizedBitmap;
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -242,14 +287,19 @@ public class BaseActivity extends AppCompatActivity {
             if (data != null) {
                 Uri photoUri = data.getData();
                 // Do something with the photo based on Uri
-                Bitmap selectedImage = null;
+                Bitmap selectedImageBitmap = null;
                 try {
-                    selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
                     File resizedFile = new File(photoUri.getPath());
                     resizedFile.createNewFile();
                     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (mLastLocation != null) {
-                        ImageUtils.saveImageToParse(this, transferUtility, mLastLocation, resizedFile);
+                        Image image = ImageUtils.saveImageToParse(this, transferUtility, mLastLocation, resizedFile);
+                        currentLat = mLastLocation.getLatitude();
+                        currentLong = mLastLocation.getLongitude();
+                        toCreateEventFragment = true;
+                        chosenImageId = image.getObjectId();
+                        imageBitmap = selectedImageBitmap;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -263,4 +313,30 @@ public class BaseActivity extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (toCreateEventFragment) {
+            this.showCreateEventFragment(currentLat, currentLong, chosenImageId);
+            toCreateEventFragment = false;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    public void showCreateEventFragment(Double lat, Double lon, String imageId) {
+        FragmentManager fm = this.getSupportFragmentManager();
+        CreateEventFragment eventDialogFragment = CreateEventFragment.newInstance(currentTrip.getObjectId(), lat, lon, imageId, imageBitmap, true);
+        eventDialogFragment.show(fm, "fragment_create_event");
+    }
+
+    @Override
+    public void onFinishCreateEventDialog(Event event) {
+        Snackbar.make(this.getCurrentFocus(), "Created Event", Snackbar.LENGTH_LONG)
+                .show();
+        }
 }

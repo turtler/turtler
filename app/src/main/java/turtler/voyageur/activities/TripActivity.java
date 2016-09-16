@@ -3,16 +3,13 @@ package turtler.voyageur.activities;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.astuetz.PagerSlidingTabStrip;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -26,10 +23,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
-import turtler.voyageur.adapters.TripFragmentPageAdapter;
-import turtler.voyageur.fragments.HomeFragment;
 import turtler.voyageur.fragments.ProfileFragment;
-import turtler.voyageur.fragments.TripTimelineFragment;
 import turtler.voyageur.fragments.ViewPagerContainerFragment;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
@@ -77,7 +71,7 @@ public class TripActivity extends AppCompatActivity {
     private void populateTripUI() {
         String tripId = getIntent().getStringExtra("tripId");
         ParseQuery<Trip> query = ParseQuery.getQuery("Trip");
-        query.getInBackground(tripId, new GetCallback<Trip>() {
+        query.orderByDescending("date").getInBackground(tripId, new GetCallback<Trip>() {
             @Override
             public void done(Trip object, ParseException e) {
                 trip = object;

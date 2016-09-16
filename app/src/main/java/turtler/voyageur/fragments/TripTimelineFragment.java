@@ -74,7 +74,7 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
         try {
             int curSize = eventAdapter.getItemCount();
             trip = (Trip) query.get(tripId);
-            events.addAll(trip.getEventsRelation().getQuery().find());
+            events.addAll(trip.getEventsRelation().getQuery().orderByDescending("date").find());
             eventAdapter.notifyItemRangeInserted(curSize, events.size());
         } catch (ParseException e) {
             e.printStackTrace();

@@ -71,6 +71,41 @@ public class ImageUtils {
         return parseImage;
     }
 
+    public static Image saveImageToParseNotInBackground(final Context context, TransferUtility transferUtility, Location mLastLocation, File resizedFile) {
+        String lat = Double.toString(mLastLocation.getLatitude());
+        String lon = Double.toString(mLastLocation.getLongitude());
+        Image parseImage = new Image();
+        parseImage.setLatitude(mLastLocation.getLatitude());
+        parseImage.setLongitude(mLastLocation.getLongitude());
+        parseImage.setPictureUrl(AMAZON_S3_FILE_URL + resizedFile.getName());
+        parseImage.setUser((User) ParseUser.getCurrentUser());
+        try {
+            parseImage.save();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
+                resizedFile);
+
+        observer.setTransferListener(new TransferListener() {
+            @Override
+            public void onStateChanged(int i, TransferState transferState) {
+                if (transferState.toString().equals("COMPLETED")) {
+                    Toast.makeText(context, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
+                }
+            }
+            @Override
+            public void onProgressChanged(int i, long l, long l1) {
+            }
+            @Override
+            public void onError(int i, Exception e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+        return parseImage;
+    }
+
     // Returns uri for photo stored on disk with fileName
     public static Uri getPhotoFileUri(Context c, String fileName) {
         if (isExternalStorageAvailable()) {

@@ -34,6 +34,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -78,6 +79,7 @@ public class CreateEventFragment extends DialogFragment {
 
     Trip currentTrip;
     String tripId;
+    String imageId;
     Location mLastLocation;
     Location chosenLocation;
     Bitmap selectedImageBitmap;
@@ -89,6 +91,7 @@ public class CreateEventFragment extends DialogFragment {
     public String photoFileName = "photo";
     private TransferUtility transferUtility;
     ArrayList<String> friendsListIds = new ArrayList<String>();
+    CreateEventFragmentListener listener;
 
     public CreateEventFragment() {}
 
@@ -114,12 +117,32 @@ public class CreateEventFragment extends DialogFragment {
         return frag;
     }
 
+    public static CreateEventFragment newInstance(String tripId, Double lat, Double lon, String imageId, Bitmap bitmap, boolean fromActivity) {
+        CreateEventFragment frag = new CreateEventFragment();
+        Bundle args = new Bundle();
+        args.putString("tripId", tripId);
+        args.putDouble("chosenLat", lat);
+        args.putDouble("chosenLong", lon);
+        args.putString("imageId", imageId);
+        args.putParcelable("bitmap", bitmap);
+        args.putBoolean("fromActivity", fromActivity);
+        frag.setArguments(args);
+        return frag;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tripId = getArguments().getString("tripId", "");
         Double chosenLat = getArguments().getDouble("chosenLat");
         Double chosenLong = getArguments().getDouble("chosenLong");
+        imageId = getArguments().getString("imageId", "");
+        selectedImageBitmap = getArguments().getParcelable("bitmap");
+        if (getArguments().getBoolean("fromActivity", false)) {
+            listener = (CreateEventFragmentListener) getActivity();
+        } else {
+            listener = (CreateEventFragmentListener) getTargetFragment();
+        }
         if (chosenLat != null && chosenLong != null) {
             chosenLocation = new Location("");
             chosenLocation.setLatitude(chosenLat);
@@ -136,8 +159,6 @@ public class CreateEventFragment extends DialogFragment {
                     }
                 }
             });
-        } else {
-            /**TODO: set trip to be get current trip **/
         }
         if(VoyageurApplication.getGoogleApiHelper().isConnected()) {
             mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
@@ -152,6 +173,22 @@ public class CreateEventFragment extends DialogFragment {
         getDialog().setCanceledOnTouchOutside(true);
         unbinder = ButterKnife.bind(this, view);
         etDateTime.setText(TimeFormatUtils.dateTimeToString(calendar.getTime())); //automatically shows current time
+        if (imageId != "") {
+            ParseQuery<Image> query = ParseQuery.getQuery(Image.class);
+            query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK); // or CACHE_ONLY
+            query.getInBackground(imageId, new GetCallback<Image>() {
+                public void done(Image item, ParseException e) {
+                    if (e == null) {
+                        image = item;
+                        Picasso.with(getContext()).load(image.getPictureUrl()).into(ivPreview);
+                    }
+                }
+            });
+        }
+        if (selectedImageBitmap != null) {
+            ivPreview.setImageBitmap(selectedImageBitmap);
+        }
+
         final AutoCompleteTextView textView = (AutoCompleteTextView)
                 view.findViewById(R.id.etFriendsTripEvent);
         Trip t = ParseObject.createWithoutData(Trip.class, tripId);
@@ -237,7 +274,6 @@ public class CreateEventFragment extends DialogFragment {
                                 if (image != null) {
                                     newEvent.addImage(user.createWithoutData(Image.class, image.getObjectId()));
                                 }
-                                CreateEventFragmentListener listener = (CreateEventFragmentListener) getTargetFragment();
                                 listener.onFinishCreateEventDialog(newEvent);
                                 dismiss();
                             }
@@ -398,5 +434,9 @@ public class CreateEventFragment extends DialogFragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
     }
 }
