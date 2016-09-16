@@ -61,8 +61,9 @@ public class TripActivity extends AppCompatActivity {
                 }
             }
         });
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.flTrip, new ViewPagerContainerFragment())
+                .replace(R.id.flTrip, new ViewPagerContainerFragment(), "view_pager")
                 .commit();
 
         populateTripUI();

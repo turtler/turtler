@@ -69,6 +69,11 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     }
     private String tripId;
     private SupportMapFragment mapFragment;
+
+    public GoogleMap getMap() {
+        return map;
+    }
+
     private GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -88,7 +93,15 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         super.onCreate(savedInstanceState);
         View view = inflater.inflate(R.layout.activity_map, container, false);
         tripId = getActivity().getIntent().getStringExtra("tripId");
-
+        Trip tripObj = ParseObject.createWithoutData(Trip.class, tripId);
+        tripObj.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
+            @Override
+            public void done(List<User> users, ParseException e) {
+                if (users != null) {
+                    user = users.get(0);
+                }
+            }
+        });
         mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
