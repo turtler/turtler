@@ -12,7 +12,7 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabAddTrip"
-        android:src="@drawable/ic_cake_black_24dp"
+        android:src="@drawable/ic_plus"
         app:fabSize="normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
