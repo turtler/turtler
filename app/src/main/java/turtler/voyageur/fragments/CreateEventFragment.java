@@ -270,9 +270,14 @@ public class CreateEventFragment extends DialogFragment {
                             @Override
                             public void done(ParseException e) {
                                 currentTrip.addEvent(newEvent);
+
                                 newEvent.addMarker(parseMarker);
                                 if (image != null) {
-                                    newEvent.addImage(user.createWithoutData(Image.class, image.getObjectId()));
+                                    Image i = user.createWithoutData(Image.class, image.getObjectId());
+                                    newEvent.addImage(i);
+                                    if (currentTrip.getCoverPhotoURL() == null) {
+                                        currentTrip.addImage(i);
+                                    }
                                 }
                                 listener.onFinishCreateEventDialog(newEvent);
                                 dismiss();

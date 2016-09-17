@@ -3,32 +3,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_margin="10dp"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        tools:text="Italy"
-        android:id="@+id/tvTripName" />
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        card_view:cardCornerRadius="4dp">
+        <ImageView
+            android:id="@+id/ivCoverImage"
+            android:scaleType="centerCrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></ImageView>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        tools:text="8/2/2016"
-        android:id="@+id/tvStartDate"
-        android:layout_alignBottom="@+id/tvTripName"
-        android:layout_toRightOf="@+id/tvTripName"
-        android:layout_toEndOf="@+id/tvTripName" />
+        <TextView
+            android:id="@+id/tvTripName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#80ffffff"
+            android:maxLines="3"
+            android:padding="8dp"
+            tools:text="@string/title"
+            android:textColor="#222"
+            android:textStyle="bold"
+            android:textSize="22dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        tools:text="8/7/2016"
-        android:id="@+id/tvEndDate"
-        android:layout_alignTop="@+id/tvStartDate"
-        android:layout_toRightOf="@+id/tvStartDate"
-        android:layout_toEndOf="@+id/tvStartDate" />
+
+
+
+    </android.support.v7.widget.CardView>
+
 </RelativeLayout>
