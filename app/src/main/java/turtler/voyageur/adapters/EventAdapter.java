@@ -14,7 +14,12 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,6 +27,7 @@ import turtler.voyageur.R;
 import turtler.voyageur.fragments.DetailEvent;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
+import turtler.voyageur.models.Trip;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
@@ -30,12 +36,15 @@ import turtler.voyageur.utils.TimeFormatUtils;
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
     private ArrayList<Event> mEvents;
     private Context mContext;
+    private int currDay = 0;
+    LocalDate startDate;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.ivFirstImage) ImageView ivfirstImage;
         @BindView(R.id.tvTitle) TextView tvTitle;
         @BindView(R.id.tvCaption) TextView tvCaption;
         @BindView(R.id.tvDate) TextView tvDate;
+        @BindView(R.id.tvDayLabel) TextView tvDayLabel;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -70,6 +79,18 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(EventAdapter.ViewHolder viewHolder, int position) {
+        if (startDate == null) {
+            if (mEvents != null && mEvents.size() > 0) {
+                Trip t = null;
+                try {
+                    t = mEvents.get(0).getTrip().fetchIfNeeded();
+                    startDate = LocalDate.fromDateFields(t.getStartDate());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                startDate = LocalDate.fromDateFields(t.getStartDate());
+            }
+        }
         Event ev = mEvents.get(position);
         ArrayList<Image> images = new ArrayList<>();
         try {
@@ -83,6 +104,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         viewHolder.tvCaption.setText(ev.getCaption());
         viewHolder.tvTitle.setText(ev.getTitle());
         if (ev.getDate() != null) {
+            int days = Days.daysBetween(startDate, LocalDate.fromDateFields(ev.getDate())).getDays() + 1;
+            if (days != currDay) {
+                viewHolder.tvDayLabel.setText("Day " + days);
+                currDay = days;
+            }
             viewHolder.tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
         }
     }
