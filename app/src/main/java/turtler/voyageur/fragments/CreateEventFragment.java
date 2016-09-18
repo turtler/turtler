@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +22,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -47,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,12 +72,9 @@ import turtler.voyageur.utils.TimeFormatUtils;
  * Created by carolinewong on 9/3/16.
  */
 public class CreateEventFragment extends DialogFragment {
-    @BindView(R.id.ivPreview) ImageView ivPreview;
-    @BindView(R.id.tvLocationLabel) TextView tvLocationLabel;
-    @BindView(R.id.tvLocation) TextView tvLocation;
-    @BindView(R.id.tvTitleLabel) TextView tvTitleLabel;
+    @BindView(R.id.ivUploadImage) ImageView ivUploadImage;
+    @BindView(R.id.ivImagePreview) ImageView ivImagePreview;
     @BindView(R.id.etTitle) EditText etTitle;
-    @BindView(R.id.tvCaptionLabel) TextView tvCaptionLabel;
     @BindView(R.id.etCaption) EditText etCaption;
     @BindView(R.id.etDateTime) EditText etDateTime;
     @BindView(R.id.btnSaveEvent) Button btnSaveEvent;
@@ -179,7 +177,7 @@ public class CreateEventFragment extends DialogFragment {
         final View view = inflater.inflate(R.layout.fragment_create_event, container, false);
         getDialog().setCanceledOnTouchOutside(true);
         unbinder = ButterKnife.bind(this, view);
-        etDateTime.setText(TimeFormatUtils.dateTimeToString(calendar.getTime())); //automatically shows current time
+        etDateTime.setText("Now"); //automatically shows current time
         if (imageId != "") {
             ParseQuery<Image> query = ParseQuery.getQuery(Image.class);
             query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK); // or CACHE_ONLY
@@ -187,13 +185,13 @@ public class CreateEventFragment extends DialogFragment {
                 public void done(Image item, ParseException e) {
                     if (e == null) {
                         image = item;
-                        Picasso.with(getContext()).load(image.getPictureUrl()).into(ivPreview);
+                        Picasso.with(getContext()).load(image.getPictureUrl()).into(ivImagePreview);
                     }
                 }
             });
         }
         if (selectedImageBitmap != null) {
-            ivPreview.setImageBitmap(selectedImageBitmap);
+            ivImagePreview.setImageBitmap(selectedImageBitmap);
         }
 
         final AutoCompleteTextView textView = (AutoCompleteTextView)
@@ -294,7 +292,7 @@ public class CreateEventFragment extends DialogFragment {
                 });
             }
         });
-        ivPreview.setOnClickListener(new View.OnClickListener() {
+        ivUploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getDialog().hide();
@@ -338,6 +336,7 @@ public class CreateEventFragment extends DialogFragment {
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), listener, year, month, day);
+        datePickerDialog.getDatePicker().setMaxDate(new Date().getTime());
         datePickerDialog.show();
     }
 
@@ -419,7 +418,7 @@ public class CreateEventFragment extends DialogFragment {
                 selectedImageBitmap = null;
                 try {
                     selectedImageBitmap = MediaStore.Images.Media.getBitmap(self.getContentResolver(), photoUri);
-                    ivPreview.setImageBitmap(selectedImageBitmap);
+                    ivImagePreview.setImageBitmap(selectedImageBitmap);
                     File resizedFile = new File(photoUri.getPath());
                     resizedFile.createNewFile();
 
@@ -440,8 +439,7 @@ public class CreateEventFragment extends DialogFragment {
     }
 
     public void setFragmentUIWithEventProps() {
-        ivPreview.setImageBitmap(selectedImageBitmap);
-        tvLocation.setText(Double.toString(mLastLocation.getLatitude()) + ", " + Double.toString(mLastLocation.getLongitude()));
+        ivImagePreview.setImageBitmap(selectedImageBitmap);
     }
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {

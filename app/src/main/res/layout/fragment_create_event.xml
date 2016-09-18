@@ -5,65 +5,31 @@
     android:layout_margin="15dp"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_plus"
-        android:id="@+id/ivPreview" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/location"
-        android:id="@+id/tvLocationLabel"
-        android:layout_below="@+id/ivPreview"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="56, 333"
-        android:id="@+id/tvLocation"
-        android:layout_alignTop="@+id/tvLocationLabel"
-        android:layout_toRightOf="@+id/tvLocationLabel"
-        android:layout_toEndOf="@+id/tvLocationLabel" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/title"
-        android:id="@+id/tvTitleLabel"
-        android:layout_above="@+id/etCaption"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
     <EditText
-        android:layout_width="wrap_content"
+
+        android:layout_width="300dp"
+        android:hint="What did you do?"
         android:layout_height="wrap_content"
         android:id="@+id/etTitle"
         android:lines="2"
-        android:layout_below="@+id/tvLocation"
-        android:layout_toRightOf="@+id/tvLocationLabel"
-        android:layout_toEndOf="@+id/tvLocationLabel" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/caption"
-        android:id="@+id/tvCaptionLabel"
-        android:layout_alignBottom="@+id/etCaption"
-        android:layout_alignRight="@+id/ivPreview"
-        android:layout_alignEnd="@+id/ivPreview" />
+        android:gravity="top|left" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:inputType="date"
+        android:id="@+id/etDateTime"
+        android:gravity="top|right"
+        android:layout_toRightOf="@+id/etTitle"
+        android:layout_toEndOf="@id/etTitle"
+        tools:text="test"/>
+    <EditText
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
         android:id="@+id/etCaption"
+        android:hint="Tell us more!"
         android:lines="2"
-        android:layout_below="@+id/etTitle"
-        android:layout_toRightOf="@+id/tvLocationLabel"
-        android:layout_toEndOf="@+id/tvLocationLabel" />
+        android:layout_below="@+id/etTitle" />
 
     <Button
         android:layout_width="wrap_content"
@@ -74,56 +40,41 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="date"
-        android:ems="10"
-        android:id="@+id/etDateTime"
-        android:layout_below="@+id/etCaption"
-        android:layout_toRightOf="@+id/tvDateTimeLabel"
-        android:layout_toEndOf="@+id/tvDateTimeLabel" />
-
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/when"
-        android:id="@+id/tvDateTimeLabel"
-        android:layout_alignBottom="@+id/etDateTime"
-        android:layout_alignLeft="@+id/tvCaptionLabel"
-        android:layout_alignStart="@+id/tvCaptionLabel" />
+        android:layout_height="50dp"
+        android:id="@+id/tvFriendsListEvent"
+        android:layout_below="@id/etCaption"
+        android:layout_marginTop="20dp" />
 
     <AutoCompleteTextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:hint="Who are you with?"
         android:id="@+id/etFriendsTripEvent"
         android:layout_below="@+id/tvFriendsListEvent"
-        android:layout_marginLeft="10dp"
-        android:layout_alignLeft="@+id/etDateTime"
-        android:layout_alignStart="@+id/etDateTime"
-        android:layout_alignRight="@+id/etDateTime"
-        android:layout_alignEnd="@+id/etDateTime" />
+        android:layout_alignLeft="@+id/etTitle"
+        android:layout_alignStart="@+id/etTitle"
+        android:layout_alignRight="@+id/etTitle"
+        android:layout_alignEnd="@+id/etTitle" />
 
-    <TextView
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:gravity="bottom"
+        android:layout_below="@id/btnSaveEvent"
+        android:src="@drawable/ic_image"
+        android:id="@+id/ivUploadImage"
+        android:tint="#8b8b8b" />
+
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/friends"
-        android:id="@+id/tvFriendsTripEvent"
-        android:layout_alignBottom="@+id/etFriendsTripEvent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:id="@+id/ivImagePreview"
+        android:layout_below="@+id/etDateTime"
+        android:layout_alignRight="@+id/etCaption"
+        android:layout_alignEnd="@+id/btnSaveEvent" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:id="@+id/tvFriendsListEvent"
-        android:layout_alignLeft="@+id/tvCaptionLabel"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="false"
-        android:layout_below="@+id/tvDateTimeLabel"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="false" />
 
 </RelativeLayout>
