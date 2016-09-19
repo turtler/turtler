@@ -380,27 +380,7 @@ public class CreateEventFragment extends DialogFragment {
                 getDialog().show();
                 Uri takenPhotoUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName);
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
-                //resize bitmap or else may hit OutOfMemoryError
-                selectedImageBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
-                // save file
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                selectedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
-                // new file for the resized bitmap
-                Uri resizedUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName + UUID.randomUUID());
-                File resizedFile = new File(resizedUri.getPath());
-                try {
-                    resizedFile.createNewFile();
-                    FileOutputStream fos = new FileOutputStream(resizedFile);
-                    fos.write(bytes.toByteArray());
-                    fos.close();
-
-                    mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                    if (mLastLocation != null) {
-                        image = ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                resizeAndUploadPhoto(takenImage);
                 setFragmentUIWithEventProps();
             } else {
                 getDialog().show();
@@ -411,18 +391,9 @@ public class CreateEventFragment extends DialogFragment {
                 getDialog().show();
                 Uri photoUri = data.getData();
                 // Do something with the photo based on Uri
-                selectedImageBitmap = null;
                 try {
-                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(self.getContentResolver(), photoUri);
-                    ivImagePreview.setImageBitmap(selectedImageBitmap);
-                    File resizedFile = new File(photoUri.getPath());
-                    resizedFile.createNewFile();
-
-                    mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                    if (mLastLocation != null) {
-                        image = ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
-                    }
-
+                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), photoUri);
+                    resizeAndUploadPhoto(selectedImageBitmap);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -431,6 +402,30 @@ public class CreateEventFragment extends DialogFragment {
                 getDialog().show();
                 Toast.makeText(self, "No picture chosen!", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+    public void resizeAndUploadPhoto(Bitmap imgBitmap) {
+        Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(imgBitmap, 200);
+        // save file
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+        // new file for the resized bitmap
+        Uri resizedUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName + UUID.randomUUID());
+        File resizedFile = new File(resizedUri.getPath());
+
+        try {
+            resizedFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(resizedFile);
+            fos.write(bytes.toByteArray());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            image = ImageUtils.saveImageToParse(getContext(), transferUtility, mLastLocation, resizedFile);
+            selectedImageBitmap = imgBitmap;
         }
     }
 
