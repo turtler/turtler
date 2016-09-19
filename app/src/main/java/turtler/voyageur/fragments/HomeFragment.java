@@ -3,6 +3,8 @@ package turtler.voyageur.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +26,7 @@ import turtler.voyageur.models.Image;
  * Created by cwong on 9/13/16.
  */
 public class HomeFragment extends Fragment {
-    @BindView(R.id.gvImageGrid) GridView gridView;
+    @BindView(R.id.rvImageGrid) RecyclerView gridView;
     private ImageGridAdapter gridAdapter;
 
     public static HomeFragment newInstance() {
@@ -39,8 +41,9 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
-        gridAdapter = new ImageGridAdapter(getContext(), R.layout.item_grid, getImages());
+        gridAdapter = new ImageGridAdapter(getContext(), getImages());
         gridView.setAdapter(gridAdapter);
+        gridView.setLayoutManager(new StaggeredGridLayoutManager(3, 1));
         return view;
     }
 
