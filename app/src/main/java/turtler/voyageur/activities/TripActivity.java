@@ -26,7 +26,6 @@ import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.fragments.ProfileFragment;
 import turtler.voyageur.fragments.ViewPagerContainerFragment;
-import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -48,12 +47,6 @@ public class TripActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
         String tripId = getIntent().getStringExtra("tripId");
-        Trip tripObj = ParseObject.createWithoutData(Trip.class, tripId);
-        tripObj.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
-            @Override
-            public void done(List<User> users, ParseException e) {
-            }
-        });
 
         ViewPagerContainerFragment vpcf = new ViewPagerContainerFragment();
         String tripImg = getIntent().getExtras().getString("tripImage");
@@ -68,6 +61,12 @@ public class TripActivity extends AppCompatActivity {
         populateTripUI();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
     private void populateTripUI() {
         String tripId = getIntent().getStringExtra("tripId");
         ParseQuery<Trip> query = ParseQuery.getQuery("Trip");
@@ -75,16 +74,6 @@ public class TripActivity extends AppCompatActivity {
             @Override
             public void done(Trip object, ParseException e) {
                 trip = object;
-                Bundle b = new Bundle();
-                try {
-                    List<Image> i = trip.getImageRelation().getQuery().find();
-                    if (i != null && i.size() > 0) {
-                        b.putString("tripImage", i.get(0).getPictureUrl());
-                    }
-                } catch (ParseException e1) {
-                    e1.printStackTrace();
-                }
-
                 trip.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
                     @Override
                     public void done(List<User> users, ParseException e) {
@@ -135,13 +124,14 @@ public class TripActivity extends AppCompatActivity {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
                     String email = menuItemStringHashMap.get(item).toString();
+
                     Fragment pf = ProfileFragment.newInstance();
                     Bundle b = new Bundle();
                     b.putString("email", email);
                     pf.setArguments(b);
                     FragmentTransaction ftProfile = getSupportFragmentManager().beginTransaction();
                     ftProfile.replace(R.id.flTrip, pf);
-                    ftProfile.addToBackStack(null);
+                    ftProfile.addToBackStack("profile");
                     ftProfile.commit();
                     return true;
                 }

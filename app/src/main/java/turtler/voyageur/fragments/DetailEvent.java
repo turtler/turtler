@@ -110,7 +110,7 @@ public class DetailEvent extends DialogFragment {
                     if (markers != null) {
                         Marker m = markers.get(0);
                         vpFrag.viewPager.setCurrentItem(1);
-                        TripMapFragment mapFrag = (TripMapFragment) getActivity().getSupportFragmentManager().findFragmentByTag("android:switcher:"+R.id.viewPager+":1");
+                        TripMapFragment mapFrag = (TripMapFragment) vpFrag.viewPager.getAdapter().instantiateItem(vpFrag.viewPager, 1);
                         GoogleMap map = mapFrag.getMap();
                         CameraUpdate c = CameraUpdateFactory.newLatLng(new LatLng(m.getLatitudeKey(), m.getLongitudeKey()));
                         CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);

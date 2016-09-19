@@ -33,7 +33,7 @@ public class ViewPagerContainerFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_view_pager_container, container, false);
 
-        pagerAdapter = new TripFragmentPageAdapter(getActivity().getSupportFragmentManager());
+        pagerAdapter = new TripFragmentPageAdapter(getChildFragmentManager());
         viewPager = (ViewPager) root.findViewById(R.id.viewPager);
         ivCover = (ImageView) root.findViewById(R.id.ivCoverImage);
         tabsStrip = (PagerSlidingTabStrip) root.findViewById(R.id.tabStrip);
