@@ -4,11 +4,9 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -18,8 +16,6 @@ import android.widget.TextView;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,7 +36,6 @@ import turtler.voyageur.utils.TimeFormatUtils;
  * Created by cwong on 9/9/16.
  */
 public class CreateTripFragment extends DialogFragment {
-    @BindView(R.id.tvTripName) TextView tvTripName;
     @BindView(R.id.etTripName) EditText etTripName;
     @BindView(R.id.tvStartDate) TextView tvStartDate;
     @BindView(R.id.etStartDate) EditText etStartDate;

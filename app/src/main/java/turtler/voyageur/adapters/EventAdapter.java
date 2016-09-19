@@ -18,8 +18,6 @@ import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -113,15 +111,18 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }
         if (ev.getEventDay() != null) {
             viewHolder.tvDayLabel.setText("Day " + ev.getEventDay());
-        }
-        else {
+        } else {
             viewHolder.tvDayLabel.setText("");
         }
-
-        viewHolder.tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
-        viewHolder.tvCaption.setText(ev.getCaption());
-        viewHolder.tvTitle.setText(ev.getTitle());
-
+        if (ev.getDate() != null) {
+            viewHolder.tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
+        }
+        if (ev.getCaption() != null) {
+            viewHolder.tvCaption.setText(ev.getCaption());
+        }
+        if (ev.getTitle() != null) {
+            viewHolder.tvTitle.setText(ev.getTitle());
+        }
     }
 
     @Override

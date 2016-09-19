@@ -1,110 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingPrefix"
     android:orientation="vertical" android:layout_width="wrap_content"
-    android:layout_margin="15dp"
+    android:padding="30dp"
     android:layout_height="500dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/trip_name"
-        android:id="@+id/tvTripName"
-        android:layout_alignBottom="@+id/etTripName"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
     <EditText
+        style="@style/EditTextTitleView"
+        tools:ignore="MissingPrefix"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Add trip name"
+        android:hint="@string/hint_trip_name"
         android:id="@+id/etTripName"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/tvTripName"
-        android:layout_toEndOf="@+id/tvTripName"
-        android:layout_marginLeft="30dp" />
+        android:layout_alignLeft="@+id/tvStartDate"
+        android:layout_alignStart="@+id/tvStartDate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
     <TextView
+        style="@style/FragmentTextViewLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/start_date"
         android:id="@+id/tvStartDate"
         android:layout_alignBottom="@+id/etStartDate"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/tvFriendsTrip"
+        android:layout_alignEnd="@+id/tvFriendsTrip" />
 
     <EditText
+        style="@style/EditTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="date"
         android:ems="10"
         android:id="@+id/etStartDate"
         android:layout_below="@+id/etTripName"
-        android:layout_alignLeft="@+id/etTripName"
-        android:layout_alignStart="@+id/etTripName"
         android:layout_alignRight="@+id/etTripName"
-        android:layout_alignEnd="@+id/etTripName" />
+        android:layout_alignEnd="@+id/etTripName"
+        android:layout_toRightOf="@+id/tvStartDate"
+        android:layout_toEndOf="@+id/tvStartDate"
+        android:singleLine="false" />
 
     <TextView
+        style="@style/FragmentTextViewLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/end_date"
         android:id="@+id/tvEndDate"
         android:layout_alignBottom="@+id/etEndDate"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/tvStartDate"
+        android:layout_alignEnd="@+id/tvStartDate" />
 
 
     <EditText
+        style="@style/EditTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="date"
         android:ems="10"
         android:id="@+id/etEndDate"
         android:layout_below="@+id/tvStartDate"
-        android:layout_alignLeft="@+id/etStartDate"
-        android:layout_alignStart="@+id/etStartDate"
         android:layout_alignRight="@+id/etStartDate"
-        android:layout_alignEnd="@+id/etStartDate" />
+        android:layout_alignEnd="@+id/etStartDate"
+        android:layout_toRightOf="@+id/tvStartDate"
+        android:layout_toEndOf="@+id/tvStartDate" />
 
     <AutoCompleteTextView
+        style="@style/EditTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:id="@+id/etFriendsTrip"
-        android:layout_below="@+id/tvFriendsList"
-        android:layout_alignLeft="@+id/etEndDate"
-        android:layout_alignStart="@+id/etEndDate"
-        android:layout_alignRight="@+id/etEndDate"
-        android:layout_alignEnd="@+id/etEndDate" />
+        android:layout_below="@+id/tvEndDate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/tvEndDate"
+        android:layout_toEndOf="@+id/tvEndDate" />
 
     <TextView
+        style="@style/FragmentTextViewLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/friends"
         android:id="@+id/tvFriendsTrip"
+        android:paddingRight="20dp"
         android:layout_alignBottom="@+id/etFriendsTrip"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
     <TextView
+        style="@style/EditTextView"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:id="@+id/tvFriendsList"
-        android:layout_alignLeft="@+id/etEndDate"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="false"
-        android:layout_below="@+id/tvEndDate"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="false" />
+        android:lines="3"
+        android:layout_alignRight="@+id/etFriendsTrip"
+        android:layout_alignEnd="@+id/etFriendsTrip"
+        android:layout_toRightOf="@+id/tvFriendsTrip"
+        android:layout_toEndOf="@+id/tvFriendsTrip"
+        android:layout_below="@+id/etFriendsTrip" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:id="@+id/btnSaveTrip"
-        android:layout_below="@+id/etFriendsTrip"
+        android:layout_below="@+id/tvFriendsList"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 

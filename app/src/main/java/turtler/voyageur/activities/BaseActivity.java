@@ -19,7 +19,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionMenuView;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
@@ -64,6 +63,7 @@ import turtler.voyageur.models.User;
 import turtler.voyageur.utils.AmazonUtils;
 import turtler.voyageur.utils.BitmapScaler;
 import turtler.voyageur.utils.ImageUtils;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class BaseActivity extends AppCompatActivity implements CreateEventFragment.CreateEventFragmentListener{
@@ -341,5 +341,10 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
     public void onFinishCreateEventDialog(Event event) {
         Snackbar.make(this.getCurrentFocus(), "Created Event", Snackbar.LENGTH_LONG)
                 .show();
-        }
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 }

@@ -9,4 +9,18 @@
         <item name="android:windowContentTransitions">true</item>
     </style>
 
+    <style name="FragmentTextViewLabel" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">@dimen/label_size</item>
+        <item name="android:textColor">@color/labelDarkGrey</item>
+    </style>
+    <style name="EditTextTitleView" parent="android:Widget.EditText">
+        <item name="android:textSize">@dimen/largetext_size</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColorHint">@color/labelLightGrey</item>
+    </style>
+    <style name="EditTextView" parent="android:Widget.EditText">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/text_size</item>
+    </style>
+
 </resources>
