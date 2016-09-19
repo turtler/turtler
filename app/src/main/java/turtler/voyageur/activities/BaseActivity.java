@@ -21,15 +21,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.GridHolder;
+import com.orhanobut.dialogplus.OnItemClickListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -205,24 +210,30 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
     }
 
     public void showCameraOptions() {
-        View v = findViewById(R.id.item_menu_camera);
-        PopupMenu popup = new PopupMenu(this, v);
-        popup.getMenuInflater().inflate(R.menu.camera_photo_menu, popup.getMenu());
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.menu_camera:
-                        showCamera();
-                        return true;
-                    case R.id.menu_photos:
-                        showPhotoLibrary();
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-        popup.show();
+        DialogPlus dialog = DialogPlus.newDialog(this)
+                .setContentHolder(new GridHolder(2))
+                .setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new String[]{getString(R.string.take_photo), getString(R.string.choose_library)}))
+                .setExpanded(true, 200)
+                .setGravity(Gravity.CENTER)
+                .setOnItemClickListener(new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                        switch (position) {
+                            case 0:
+                                showCamera();
+                                dialog.dismiss();
+                                break;
+                            case 1:
+                                showPhotoLibrary();
+                                dialog.dismiss();
+                                break;
+                            default:
+                        }
+                    }
+                })
+                .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                .create();
+        dialog.show();
     }
 
     protected void startLocationUpdates() {

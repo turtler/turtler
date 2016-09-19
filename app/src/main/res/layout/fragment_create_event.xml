@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:id="@+id/btnSaveEvent"
-        android:layout_below="@+id/etDateTime"
+        android:layout_below="@+id/etFriendsTripEvent"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 

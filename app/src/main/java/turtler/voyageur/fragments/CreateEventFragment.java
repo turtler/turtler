@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -29,6 +30,10 @@ import android.widget.Toast;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.ListHolder;
+import com.orhanobut.dialogplus.OnItemClickListener;
+import com.orhanobut.dialogplus.ViewHolder;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -83,6 +88,7 @@ public class CreateEventFragment extends DialogFragment {
     Location mLastLocation;
     Location chosenLocation;
     Bitmap selectedImageBitmap;
+    Context mContext;
     Image image;
     private Unbinder unbinder;
     Calendar calendar;
@@ -165,6 +171,7 @@ public class CreateEventFragment extends DialogFragment {
         }
         transferUtility = AmazonUtils.getTransferUtility(getContext());
         calendar = Calendar.getInstance();
+        mContext = getContext();
     }
 
     @Override
@@ -290,7 +297,29 @@ public class CreateEventFragment extends DialogFragment {
         ivPreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showCameraOptions();
+                getDialog().hide();
+                DialogPlus dialog = DialogPlus.newDialog(getContext())
+                        .setAdapter(new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, new String[]{getString(R.string.take_photo), getString(R.string.choose_library)}))
+                        .setExpanded(true, 200)
+                        .setOnItemClickListener(new OnItemClickListener() {
+                            @Override
+                            public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                                switch (position) {
+                                    case 0:
+                                        showCamera();
+                                        dialog.dismiss();
+                                        break;
+                                    case 1:
+                                        showPhotoLibrary();
+                                        dialog.dismiss();
+                                        break;
+                                    default:
+                                }
+                            }
+                        })
+                        .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                        .create();
+                dialog.show();
             }
         });
     }
@@ -332,26 +361,6 @@ public class CreateEventFragment extends DialogFragment {
         return TimeFormatUtils.dateTimeToString(c.getTime());
     }
 
-    public void showCameraOptions() {
-        PopupMenu popup = new PopupMenu(this.getActivity(), getView());
-        popup.getMenuInflater().inflate(R.menu.camera_photo_menu, popup.getMenu());
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.menu_camera:
-                        showCamera();
-                        return true;
-                    case R.id.menu_photos:
-                        showPhotoLibrary();
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-        popup.show();
-    }
-
     public void showCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, ImageUtils.getPhotoFileUri(getContext(), photoFileName)); // set the image file name
@@ -373,6 +382,7 @@ public class CreateEventFragment extends DialogFragment {
 
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == getActivity().RESULT_OK) {
+                getDialog().show();
                 Uri takenPhotoUri = ImageUtils.getPhotoFileUri(getContext(), photoFileName);
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
                 //resize bitmap or else may hit OutOfMemoryError
@@ -398,10 +408,12 @@ public class CreateEventFragment extends DialogFragment {
                 }
                 setFragmentUIWithEventProps();
             } else {
+                getDialog().show();
                 Toast.makeText(self, "No picture taken!", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == PICK_PHOTO_CODE) {
             if (data != null) {
+                getDialog().show();
                 Uri photoUri = data.getData();
                 // Do something with the photo based on Uri
                 selectedImageBitmap = null;
@@ -421,6 +433,7 @@ public class CreateEventFragment extends DialogFragment {
                 }
                 setFragmentUIWithEventProps();
             } else {
+                getDialog().show();
                 Toast.makeText(self, "No picture chosen!", Toast.LENGTH_SHORT).show();
             }
         }

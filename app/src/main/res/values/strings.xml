@@ -16,6 +16,8 @@
     <string name="title">Title</string>
     <string name="caption">Caption</string>
     <string name="when">When</string>
+    <string name="take_photo">Take a Photo</string>
+    <string name="choose_library">Choose a Photo from Library</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
