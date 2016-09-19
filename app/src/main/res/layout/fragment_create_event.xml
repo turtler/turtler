@@ -43,10 +43,13 @@
         android:layout_alignEnd="@+id/etFriendsTripEvent" />
 
     <TextView
+        style="@style/EditTextView"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:id="@+id/tvFriendsListEvent"
         android:layout_below="@id/etFriendsTripEvent"
+        android:layout_alignRight="@id/etFriendsTripEvent"
+        android:layout_alignLeft="@id/etFriendsTripEvent"
         android:layout_marginTop="20dp"
         android:layout_toStartOf="@+id/etCaption" />
 
@@ -58,8 +61,7 @@
         android:lines="2"
         android:hint="Who are you with?"
         android:id="@+id/etFriendsTripEvent"
-        android:layout_below="@+id/etCaption"
-        android:layout_toEndOf="@+id/tvFriendsListEvent" />
+        android:layout_below="@+id/etCaption" />
 
     <ImageView
         android:layout_width="20dp"
