@@ -3,6 +3,7 @@ package turtler.voyageur.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
 
 import turtler.voyageur.fragments.TripMapFragment;
 import turtler.voyageur.fragments.TripTimelineFragment;
@@ -38,4 +39,10 @@ public class TripFragmentPageAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return tabTitles.length;
     }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return PagerAdapter.POSITION_NONE;
+    }
+
 }

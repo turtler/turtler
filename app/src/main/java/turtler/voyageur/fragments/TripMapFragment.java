@@ -91,7 +91,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        View view = inflater.inflate(R.layout.activity_map, container, false);
+        View view = inflater.inflate(R.layout.fragment_map, container, false);
         tripId = getActivity().getIntent().getStringExtra("tripId");
         Trip tripObj = ParseObject.createWithoutData(Trip.class, tripId);
         tripObj.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
@@ -102,7 +102,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                 }
             }
         });
-        mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
+        mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_maps_fragment));
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -138,6 +138,12 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         }
         return view;
     }
+    @Override
+    public void onPause() {
+        super.onPause();
+        getChildFragmentManager().beginTransaction().remove(mapFragment).commit();
+    }
+
 
     protected void loadMap(GoogleMap googleMap) {
         map = googleMap;
@@ -263,12 +269,14 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     }
 
     protected void startLocationUpdates() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest, this);
+        if (mGoogleApiClient.isConnected()) {
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+            mLocationRequest.setInterval(UPDATE_INTERVAL);
+            mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                    mLocationRequest, this);
+        }
     }
 
     public void onLocationChanged(Location location) {
