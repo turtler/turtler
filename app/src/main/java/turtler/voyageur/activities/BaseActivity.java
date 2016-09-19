@@ -263,34 +263,7 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
             if (resultCode == RESULT_OK) {
                 Uri takenPhotoUri = ImageUtils.getPhotoFileUri(this, photoFileName);
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
-                //resize bitmap or else may hit OutOfMemoryError
-                Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
-                // save file
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
-                // new file for the resized bitmap
-                Uri resizedUri = ImageUtils.getPhotoFileUri(this, photoFileName + UUID.randomUUID());
-                File resizedFile = new File(resizedUri.getPath());
-                try {
-                    resizedFile.createNewFile();
-                    FileOutputStream fos = new FileOutputStream(resizedFile);
-                    fos.write(bytes.toByteArray());
-                    fos.close();
-
-                    Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                    //get current trip
-                    if (mLastLocation != null) {
-                        Image image = ImageUtils.saveImageToParseNotInBackground(this, transferUtility, mLastLocation, resizedFile);
-                        currentLat = mLastLocation.getLatitude();
-                        currentLong = mLastLocation.getLongitude();
-                        toCreateEventFragment = true;
-                        chosenImageId = image.getObjectId();
-                        imageBitmap = resizedBitmap;
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                resizeAndUploadPhoto(takenImage);
             } else {
                 Toast.makeText(this, "No picture taken!", Toast.LENGTH_SHORT).show();
             }
@@ -301,17 +274,7 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
                 Bitmap selectedImageBitmap = null;
                 try {
                     selectedImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-                    File resizedFile = new File(photoUri.getPath());
-                    resizedFile.createNewFile();
-                    Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                    if (mLastLocation != null) {
-                        Image image = ImageUtils.saveImageToParse(this, transferUtility, mLastLocation, resizedFile);
-                        currentLat = mLastLocation.getLatitude();
-                        currentLong = mLastLocation.getLongitude();
-                        toCreateEventFragment = true;
-                        chosenImageId = image.getObjectId();
-                        imageBitmap = selectedImageBitmap;
-                    }
+                    resizeAndUploadPhoto(selectedImageBitmap);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -322,6 +285,35 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
             if (resultCode == RESULT_OK) {
                 userEmail = data.getExtras().getString("user_email");
             }
+        }
+    }
+
+    public void resizeAndUploadPhoto(Bitmap imgBitmap) {
+        Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(imgBitmap, 200);
+        // save file
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+        // new file for the resized bitmap
+        Uri resizedUri = ImageUtils.getPhotoFileUri(this, photoFileName + UUID.randomUUID());
+        File resizedFile = new File(resizedUri.getPath());
+
+        try {
+            resizedFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(resizedFile);
+            fos.write(bytes.toByteArray());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            Image image = ImageUtils.saveImageToParse(this, transferUtility, mLastLocation, resizedFile);
+            currentLat = mLastLocation.getLatitude();
+            currentLong = mLastLocation.getLongitude();
+            toCreateEventFragment = true;
+            chosenImageId = image.getObjectId();
+            imageBitmap = imgBitmap;
         }
     }
 
