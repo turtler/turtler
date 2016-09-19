@@ -1,6 +1,7 @@
 package turtler.voyageur.activities;
 
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.fragments.ProfileFragment;
 import turtler.voyageur.fragments.ViewPagerContainerFragment;
+import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 
@@ -49,21 +51,17 @@ public class TripActivity extends AppCompatActivity {
         tripObj.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
             @Override
             public void done(List<User> users, ParseException e) {
-                if (users != null) {
-                    user = users.get(0);
-                    View b = findViewById(R.id.fabAddEvent);
-                    if (user.getEmail().equals(ParseUser.getCurrentUser().getEmail())) {
-                        b.setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        b.setVisibility(View.GONE);
-                    }
-                }
             }
         });
 
+        ViewPagerContainerFragment vpcf = new ViewPagerContainerFragment();
+        String tripImg = getIntent().getExtras().getString("tripImage");
+        Bundle b = new Bundle();
+        b.putString("tripImage", tripImg);
+        vpcf.setArguments(b);
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.flTrip, new ViewPagerContainerFragment(), "view_pager")
+                .replace(R.id.flTrip, vpcf, "view_pager")
                 .commit();
 
         populateTripUI();
@@ -76,6 +74,32 @@ public class TripActivity extends AppCompatActivity {
             @Override
             public void done(Trip object, ParseException e) {
                 trip = object;
+                Bundle b = new Bundle();
+                try {
+                    List<Image> i = trip.getImageRelation().getQuery().find();
+                    if (i != null && i.size() > 0) {
+                        b.putString("tripImage", i.get(0).getPictureUrl());
+                    }
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+
+                trip.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
+                    @Override
+                    public void done(List<User> users, ParseException e) {
+                        if (users != null) {
+                            user = users.get(0);
+                            View b = findViewById(R.id.fabAddEvent);
+                            if (user.getEmail().equals(ParseUser.getCurrentUser().getEmail())) {
+                                b.setVisibility(View.VISIBLE);
+                            }
+                            else {
+                                b.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                });
+
                 toolbarTitle.setText(trip.getName().toString());
                 try {
                     List<User> tripFriends = trip.getTripFriendsRelation().getQuery().find();

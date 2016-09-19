@@ -1,7 +1,10 @@
 package turtler.voyageur.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,7 +56,12 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
             ParseObject trip = mTrips.get(position);
             Intent i = new Intent(mContext, TripActivity.class);
-            i.putExtra("tripId", trip.getObjectId());
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) mContext, (View)(ivCoverImage), "cover");
+
+            Bundle b = options.toBundle();
+            b.putString("tripId", trip.getObjectId());
+            b.putString("tripImage", coverPhotoURL);
+            i.putExtras(b);
             mContext.startActivity(i);
         }
     }
@@ -85,10 +93,12 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
 
         if (t.getCoverPhotoURL() != null) {
+            coverPhotoURL = t.getCoverPhotoURL().getPictureUrl();
             Picasso.with(mContext).load(t.getCoverPhotoURL().getPictureUrl()).into(viewHolder.ivCoverImage);
         }
         else {
             Picasso.with(mContext).load(coverPhotoURL).into(viewHolder.ivCoverImage);
+
         }
 
     }
