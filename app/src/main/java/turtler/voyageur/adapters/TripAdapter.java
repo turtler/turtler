@@ -38,8 +38,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         @BindView(R.id.ivCoverImage)
         ImageView ivCoverImage;
         @BindView(R.id.tvTripName) TextView tvTripName;
-        //@BindView(R.id.tvStartDate) TextView tvStartDate;
-        //@BindView(R.id.tvEndDate) TextView tvEndDate;
+        @BindView(R.id.tvTripDate) TextView tvTripDate;
 
 
         public ViewHolder(View itemView) {
@@ -78,14 +77,13 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         Trip t = mTrips.get(position);
 
         viewHolder.tvTripName.setText(t.getName());
-        /*if (t.getStartDate() != null) {
+        if (t.getStartDate() != null && t.getEndDate() != null) {
             String startDate = TimeFormatUtils.dateToString(t.getStartDate());
-            viewHolder.tvStartDate.setText(startDate);
-        }
-        if (t.getEndDate() != null) {
             String endDate = TimeFormatUtils.dateToString(t.getEndDate());
-            viewHolder.tvEndDate.setText(endDate);
-        }*/
+            viewHolder.tvTripDate.setText(startDate + " - " + endDate);
+        }
+
+
         if (t.getCoverPhotoURL() != null) {
             Picasso.with(mContext).load(t.getCoverPhotoURL().getPictureUrl()).into(viewHolder.ivCoverImage);
         }

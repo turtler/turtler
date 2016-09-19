@@ -17,22 +17,29 @@
             android:id="@+id/ivCoverImage"
             android:scaleType="centerCrop"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></ImageView>
+            android:layout_height="match_parent"
+            android:alpha="0.65"></ImageView>
 
         <TextView
             android:id="@+id/tvTripName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#80ffffff"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:maxLines="3"
             android:padding="8dp"
+            android:layout_marginTop="10dp"
             tools:text="@string/title"
             android:textColor="#222"
             android:textStyle="bold"
-            android:textSize="22dp" />
+            android:textSize="22dp"
+            android:gravity="bottom|right" />
 
-
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:text="8/2/2016 -"
+            android:background="#80ffffff"
+            android:id="@+id/tvTripDate" />
 
     </android.support.v7.widget.CardView>
 

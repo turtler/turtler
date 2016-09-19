@@ -8,7 +8,7 @@
     <ImageView
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/ic_cake_black_24dp"
+        android:src="@drawable/ic_plus"
         android:id="@+id/ivPreview" />
 
     <TextView
