@@ -51,10 +51,6 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
         unbinder = ButterKnife.bind(this, view);
 
         events = new ArrayList<>();
-        eventAdapter = new EventAdapter(getContext(), events);
-        rvEvents.setAdapter(eventAdapter);
-        rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
-
         populateEvents();
 
         fabAddEvent.setOnClickListener(new View.OnClickListener() {
@@ -72,10 +68,11 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
         query.include("events");
         query.setCachePolicy(ParseQuery.CachePolicy.NETWORK_ELSE_CACHE);
         try {
-            int curSize = eventAdapter.getItemCount();
             trip = (Trip) query.get(tripId);
             events.addAll(trip.getEventsRelation().getQuery().orderByDescending("date").find());
-            eventAdapter.notifyItemRangeInserted(curSize, events.size());
+            eventAdapter = new EventAdapter(getContext(), events);
+            rvEvents.setAdapter(eventAdapter);
+            rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
         } catch (ParseException e) {
             e.printStackTrace();
         }
