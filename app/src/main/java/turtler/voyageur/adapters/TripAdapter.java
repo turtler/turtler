@@ -3,19 +3,26 @@ package turtler.voyageur.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.activities.TripActivity;
+import turtler.voyageur.models.Event;
+import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.utils.TimeFormatUtils;
 
@@ -25,11 +32,15 @@ import turtler.voyageur.utils.TimeFormatUtils;
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     private ArrayList<Trip> mTrips;
     private Context mContext;
+    String coverPhotoURL = "http://coverphotosite.com/thumbs/the_great_salt_lake-t1.jpg";
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @BindView(R.id.ivCoverImage)
+        ImageView ivCoverImage;
         @BindView(R.id.tvTripName) TextView tvTripName;
-        @BindView(R.id.tvStartDate) TextView tvStartDate;
-        @BindView(R.id.tvEndDate) TextView tvEndDate;
+        //@BindView(R.id.tvStartDate) TextView tvStartDate;
+        //@BindView(R.id.tvEndDate) TextView tvEndDate;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -67,14 +78,21 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         Trip t = mTrips.get(position);
 
         viewHolder.tvTripName.setText(t.getName());
-        if (t.getStartDate() != null) {
+        /*if (t.getStartDate() != null) {
             String startDate = TimeFormatUtils.dateToString(t.getStartDate());
             viewHolder.tvStartDate.setText(startDate);
         }
         if (t.getEndDate() != null) {
             String endDate = TimeFormatUtils.dateToString(t.getEndDate());
             viewHolder.tvEndDate.setText(endDate);
+        }*/
+        if (t.getCoverPhotoURL() != null) {
+            Picasso.with(mContext).load(t.getCoverPhotoURL().getPictureUrl()).into(viewHolder.ivCoverImage);
         }
+        else {
+            Picasso.with(mContext).load(coverPhotoURL).into(viewHolder.ivCoverImage);
+        }
+
     }
 
     @Override

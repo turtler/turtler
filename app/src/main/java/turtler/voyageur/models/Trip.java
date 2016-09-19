@@ -1,6 +1,7 @@
 package turtler.voyageur.models;
 
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseRelation;
 
@@ -59,6 +60,25 @@ public class Trip extends ParseObject {
     public ArrayList<Event> getEvents() {
         return events;
     }
+
+    public Image getCoverPhotoURL() {
+        try {
+            return getImageRelation().getQuery().getFirst();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void addImage(Image image) {
+        getImageRelation().add(image);
+        saveInBackground();
+    }
+
+    public ParseRelation<Image> getImageRelation() {
+        return getRelation("image");
+    }
+
 
     public ParseRelation<User> getTripFriendsRelation() {
         return getRelation("tripFriends");
