@@ -66,6 +66,28 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     public EventAdapter(Context context, ArrayList<Event> events) {
         mContext = context;
         mEvents = events;
+        if (startDate == null) {
+            if (mEvents != null && mEvents.size() > 0) {
+                Trip t = null;
+                try {
+                    t = mEvents.get(0).getTrip().fetchIfNeeded();
+                    startDate = LocalDate.fromDateFields(t.getStartDate());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+        int prevDay = 0;
+        for (Event event: mEvents) {
+            if (event.getDate() != null) {
+                int days = Days.daysBetween(startDate, LocalDate.fromDateFields(event.getDate())).getDays() + 1;
+                if (days != prevDay) {
+                    event.setEventDay(days);
+                    prevDay = days;
+                }
+            }
+        }
     }
 
     @Override
@@ -79,18 +101,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(EventAdapter.ViewHolder viewHolder, int position) {
-        if (startDate == null) {
-            if (mEvents != null && mEvents.size() > 0) {
-                Trip t = null;
-                try {
-                    t = mEvents.get(0).getTrip().fetchIfNeeded();
-                    startDate = LocalDate.fromDateFields(t.getStartDate());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                startDate = LocalDate.fromDateFields(t.getStartDate());
-            }
-        }
         Event ev = mEvents.get(position);
         ArrayList<Image> images = new ArrayList<>();
         try {
@@ -101,16 +111,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         if (images.size() > 0) {
             Picasso.with(mContext).load(images.get(0).getPictureUrl()).into(viewHolder.ivfirstImage);
         }
+        if (ev.getEventDay() != null) {
+            viewHolder.tvDayLabel.setText("Day " + ev.getEventDay());
+        }
+        else {
+            viewHolder.tvDayLabel.setText("");
+        }
+
+        viewHolder.tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
         viewHolder.tvCaption.setText(ev.getCaption());
         viewHolder.tvTitle.setText(ev.getTitle());
-        if (ev.getDate() != null) {
-            int days = Days.daysBetween(startDate, LocalDate.fromDateFields(ev.getDate())).getDays() + 1;
-            if (days != currDay) {
-                viewHolder.tvDayLabel.setText("Day " + days);
-                currDay = days;
-            }
-            viewHolder.tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
-        }
+
     }
 
     @Override

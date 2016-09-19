@@ -20,7 +20,14 @@ public class Event extends ParseObject {
     public String title;
     public Marker marker;
     public Date date;
+    public Integer eventDay;
 
+    public void setEventDay(int day) {
+        eventDay = day;
+    }
+    public Integer getEventDay() {
+        return eventDay;
+    }
     public Marker getMarker() {
         return (Marker) getParseObject("marker");
     }
