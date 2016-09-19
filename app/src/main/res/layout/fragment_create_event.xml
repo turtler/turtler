@@ -3,10 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_margin="15dp"
+    android:padding="30dp"
     android:layout_height="match_parent">
 
     <EditText
-
+        style="@style/EditTextView"
         android:layout_width="300dp"
         android:hint="What did you do?"
         android:layout_height="wrap_content"
@@ -15,6 +16,7 @@
         android:gravity="top|left" />
 
     <EditText
+        style="@style/EditTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="date"
@@ -24,6 +26,7 @@
         android:layout_toEndOf="@id/etTitle"
         tools:text="test"/>
     <EditText
+        style="@style/EditTextView"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:id="@+id/etCaption"
@@ -36,37 +39,37 @@
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:id="@+id/btnSaveEvent"
-        android:layout_below="@+id/etFriendsTripEvent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/tvFriendsListEvent"
+        android:layout_alignEnd="@+id/etFriendsTripEvent" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:id="@+id/tvFriendsListEvent"
-        android:layout_below="@id/etCaption"
-        android:layout_marginTop="20dp" />
+        android:layout_below="@id/etFriendsTripEvent"
+        android:layout_marginTop="20dp"
+        android:layout_toStartOf="@+id/etCaption" />
 
     <AutoCompleteTextView
+        style="@style/EditTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:lines="2"
         android:hint="Who are you with?"
         android:id="@+id/etFriendsTripEvent"
-        android:layout_below="@+id/tvFriendsListEvent"
-        android:layout_alignLeft="@+id/etTitle"
-        android:layout_alignStart="@+id/etTitle"
-        android:layout_alignRight="@+id/etTitle"
-        android:layout_alignEnd="@+id/etTitle" />
+        android:layout_below="@+id/etCaption"
+        android:layout_toEndOf="@+id/tvFriendsListEvent" />
 
     <ImageView
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:gravity="bottom"
-        android:layout_below="@id/btnSaveEvent"
         android:src="@drawable/ic_image"
         android:id="@+id/ivUploadImage"
-        android:tint="#8b8b8b" />
+        android:tint="#8b8b8b"
+        android:layout_alignBottom="@+id/btnSaveEvent"
+        android:layout_alignStart="@+id/tvFriendsListEvent" />
 
     <ImageView
         android:layout_width="wrap_content"
