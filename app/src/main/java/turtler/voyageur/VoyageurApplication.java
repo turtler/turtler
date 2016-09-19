@@ -22,6 +22,7 @@ import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 /**
  * Created by cwong on 9/11/16.
@@ -85,6 +86,11 @@ public class VoyageurApplication extends Application {
                         }
                     });
         }
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/UniSansRegular.otf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
     }
 
     @SuppressWarnings("all")
