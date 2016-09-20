@@ -52,6 +52,20 @@ public class Event extends ParseObject {
         return peopleAtEvent;
     }
 
+    public ParseRelation<User> getFriendsRelation() {
+        return getRelation("friends");
+    }
+
+    public void addFriend(User f) {
+        getFriendsRelation().add(f);
+        saveInBackground();
+    }
+
+    public void removeFriend(User f) {
+        getFriendsRelation().remove(f);
+        saveInBackground();
+    }
+
     public String getCaption() {
         return getString("caption");
     }
@@ -95,20 +109,6 @@ public class Event extends ParseObject {
 
     public void removeImage(Image image) {
         imagesRelation().remove(image);
-        saveInBackground();
-    }
-
-    public ParseRelation<User> peopleAtEventRelation() {
-        return getRelation("peopleAtEvent");
-    }
-
-    public void addUserToEvent(User friend) {
-        peopleAtEventRelation().add(friend);
-        saveInBackground();
-    }
-
-    public void removeUserFromEvent(User friend) {
-        peopleAtEventRelation().remove(friend);
         saveInBackground();
     }
 

@@ -264,6 +264,10 @@ public class CreateEventFragment extends DialogFragment {
                             parseMarker.setLatitude(mLastLocation.getLatitude());
                             parseMarker.setLongitude(mLastLocation.getLongitude());
                         }
+                        for (String friendId : friendsListIds) {
+                            User newFriend = ParseObject.createWithoutData(User.class, friendId);
+                            newEvent.addFriend(newFriend);
+                        }
                         parseMarker.setUser(user);
                         parseMarker.setEvent(newEvent);
                         parseMarker.setTrip(tripId);
