@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -116,15 +117,30 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                         public void done(List<Marker> markers, ParseException e) {
                             if (e == null) {
                                 for (int i = 0; i < markers.size(); i++) {
-                                    turtler.voyageur.models.Marker m = (turtler.voyageur.models.Marker) markers.get(i);
-                                    BitmapDescriptor defaultMarker =
+                                    final turtler.voyageur.models.Marker m = (turtler.voyageur.models.Marker) markers.get(i);
+                                    final BitmapDescriptor defaultMarker =
                                             BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                                    LatLng point = new LatLng(m.getLatitudeKey(), m.getLongitudeKey());
-                                    com.google.android.gms.maps.model.Marker marker = gmap.addMarker(new MarkerOptions()
-                                            .position(point)
-                                            .icon(defaultMarker));
-                                    rectOptions.add(new LatLng(point.latitude, point.longitude));
-                                    Polyline polyline = gmap.addPolyline(rectOptions);
+                                    final LatLng point = new LatLng(m.getLatitudeKey(), m.getLongitudeKey());
+                                    m.getEvent().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                                        @Override
+                                        public void done(ParseObject object, ParseException e) {
+                                            if (e == null) {
+                                                com.google.android.gms.maps.model.Marker marker = gmap.addMarker(new MarkerOptions()
+                                                        .position(point)
+                                                        .title(object.getString("title"))
+                                                        .snippet(object.getString("caption"))
+                                                        .icon(defaultMarker));
+                                            }
+                                            else {
+                                                com.google.android.gms.maps.model.Marker marker = gmap.addMarker(new MarkerOptions()
+                                                        .position(point)
+                                                        .icon(defaultMarker));
+                                            }
+                                            rectOptions.add(new LatLng(point.latitude, point.longitude));
+                                            Polyline polyline = gmap.addPolyline(rectOptions);
+                                        }
+                                    });
+
                                 }
                             } else {
                                 Log.e("message", "Error Loading Messages" + e);
