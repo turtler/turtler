@@ -98,9 +98,8 @@
     <TextView
         style="@style/EditTextView"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="80dp"
         android:id="@+id/tvFriendsList"
-        android:lines="3"
         android:layout_alignRight="@+id/etFriendsTrip"
         android:layout_alignEnd="@+id/etFriendsTrip"
         android:layout_toRightOf="@+id/tvFriendsTrip"

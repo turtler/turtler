@@ -8,13 +8,13 @@
 
     <EditText
         style="@style/EditTextView"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:hint="What did you do?"
         android:layout_height="wrap_content"
         android:id="@+id/etTitle"
         android:lines="2"
         android:gravity="top|left"
-        android:layout_below="@+id/ivUploadImage"
+        android:layout_below="@+id/etDateTime"
         android:layout_alignParentEnd="true" />
 
     <EditText
@@ -22,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="date"
+        android:gravity="right"
         android:id="@+id/etDateTime"
         android:layout_alignParentTop="true"
         tools:text="test"
@@ -41,13 +42,13 @@
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:id="@+id/btnSaveEvent"
-        android:layout_below="@+id/tvFriendsListEvent"
+        android:layout_below="@+id/ivUploadImage"
         android:layout_alignParentEnd="true" />
 
     <TextView
         style="@style/EditTextView"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="80dp"
         android:layout_alignParentLeft="true"
         android:id="@+id/tvFriendsListEvent"
         android:layout_below="@+id/etFriendsTripEvent"
@@ -64,23 +65,14 @@
         android:layout_below="@+id/etCaption" />
 
     <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:gravity="bottom"
         android:src="@drawable/ic_image"
         android:id="@+id/ivUploadImage"
-        android:tint="#8b8b8b"
-        android:padding="10dp"
-        android:layout_alignTop="@+id/etDateTime"
-        android:layout_alignStart="@+id/etTitle" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/ivImagePreview"
-        android:layout_below="@+id/etDateTime"
-        android:layout_alignRight="@+id/etCaption"
-        android:layout_alignEnd="@+id/btnSaveEvent" />
+        android:padding="20dp"
+        android:layout_below="@+id/tvFriendsListEvent"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

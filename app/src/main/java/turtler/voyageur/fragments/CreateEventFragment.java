@@ -1,8 +1,10 @@
 package turtler.voyageur.fragments;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +12,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -35,7 +38,6 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
@@ -43,7 +45,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -71,7 +72,6 @@ import turtler.voyageur.utils.TimeFormatUtils;
  */
 public class CreateEventFragment extends DialogFragment {
     @BindView(R.id.ivUploadImage) ImageView ivUploadImage;
-    @BindView(R.id.ivImagePreview) ImageView ivImagePreview;
     @BindView(R.id.etTitle) EditText etTitle;
     @BindView(R.id.etCaption) EditText etCaption;
     @BindView(R.id.etDateTime) EditText etDateTime;
@@ -184,13 +184,13 @@ public class CreateEventFragment extends DialogFragment {
                 public void done(Image item, ParseException e) {
                     if (e == null) {
                         image = item;
-                        Glide.with(getContext()).load(image.getPictureUrl()).into(ivImagePreview);
+                        Glide.with(getContext()).load(image.getPictureUrl()).into(ivUploadImage);
                     }
                 }
             });
         }
         if (selectedImageBitmap != null) {
-            ivImagePreview.setImageBitmap(selectedImageBitmap);
+            ivUploadImage.setImageBitmap(selectedImageBitmap);
         }
 
         final AutoCompleteTextView textView = (AutoCompleteTextView)
@@ -436,7 +436,8 @@ public class CreateEventFragment extends DialogFragment {
     }
 
     public void setFragmentUIWithEventProps() {
-        ivImagePreview.setImageBitmap(selectedImageBitmap);
+        ivUploadImage.setPadding(0, 0, 0, 0);
+        ivUploadImage.setImageBitmap(selectedImageBitmap);
     }
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
