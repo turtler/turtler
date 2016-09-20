@@ -10,21 +10,27 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
-import turtler.voyageur.fragments.DetailEvent;
+import turtler.voyageur.fragments.TripMapFragment;
+import turtler.voyageur.fragments.ViewPagerContainerFragment;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
+import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.utils.TimeFormatUtils;
 
@@ -53,11 +59,26 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         @Override
         public void onClick(View view) {
             int position = getLayoutPosition();
-            ParseObject event = mEvents.get(position);
+            Event event = mEvents.get(position);
+
             FragmentActivity activity = (FragmentActivity)(mContext);
             FragmentManager fm = activity.getSupportFragmentManager();
-            DetailEvent alertDialog = DetailEvent.newInstance(event.getObjectId());
-            alertDialog.show(fm, "fragment_detail_event");
+            ViewPagerContainerFragment vpFrag = (ViewPagerContainerFragment) fm.findFragmentByTag("view_pager");
+            try {
+                List<Marker> markers = event.getMarkerParseRelation().getQuery().find();
+                if (markers != null) {
+                    Marker m = markers.get(0);
+                    vpFrag.viewPager.setCurrentItem(1);
+                    TripMapFragment mapFrag = (TripMapFragment) vpFrag.viewPager.getAdapter().instantiateItem(vpFrag.viewPager, 1);
+                    GoogleMap map = mapFrag.getMap();
+                    CameraUpdate c = CameraUpdateFactory.newLatLng(new LatLng(m.getLatitudeKey(), m.getLongitudeKey()));
+                    CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                    map.moveCamera(c);
+                    map.animateCamera(zoom);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
     }
 
