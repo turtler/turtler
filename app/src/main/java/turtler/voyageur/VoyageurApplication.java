@@ -14,7 +14,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
-import com.parse.interceptors.ParseLogInterceptor;
 
 import permissions.dispatcher.NeedsPermission;
 import turtler.voyageur.models.Event;
@@ -63,7 +62,6 @@ public class VoyageurApplication extends Application {
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("voyaging") // should correspond to APP_ID env variable
                 .clientKey("sayheyhey")  // set explicitly unless clientKey is explicitly configured on Parse server
-                .addNetworkInterceptor(new ParseLogInterceptor())
                 .server("https://voyaging.herokuapp.com/parse/").build());
 
         FacebookSdk.sdkInitialize(this);

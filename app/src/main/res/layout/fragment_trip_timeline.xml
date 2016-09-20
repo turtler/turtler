@@ -20,5 +20,5 @@
         android:layout_gravity="bottom|right"
         android:layout_margin="24dp"
         app:layout_anchor="@+id/rvEvents"
-        app:layout_anchorGravity="bottom|right|end"/>
+        app:layout_anchorGravity="bottom|right"/>
 </android.support.design.widget.CoordinatorLayout>

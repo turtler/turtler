@@ -57,13 +57,10 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void done(ParseUser user, ParseException err) {
                         if (user == null) {
-                            Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
                         } else if (user.isNew()) {
                             getUserInfoFromFb(user);
                             getFriendInfoFromFB(user);
-                            Log.d("MyApp", "User signed up and logged in through Facebook!");
                         } else {
-                            Log.d("MyApp", "User logged in through Facebook!");
                             getUserInfoFromParse();
                         }
                     }
@@ -96,7 +93,6 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void done(ParseException e) {
                                     if (e != null) {
-                                        Log.d("exception", e.toString());
                                     }
                                     else {
                                         Intent data = new Intent();
@@ -128,7 +124,6 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void done(List<User> users, ParseException e) {
                                     if (friends.length() == users.size()) {
-                                        Log.d("friends", "NO NEW FRIENDS!");
                                         return;
                                     }
                                     else {
@@ -144,11 +139,8 @@ public class LoginActivity extends AppCompatActivity {
                                                         if (e == null) {
                                                             for (int i = 0; i < users.size(); i++) {
                                                                 u.addFriend(users.get(i));
-                                                                Log.d("friends", "friend added!");
-                                                                Log.d("friends", users.get(i).getName());
                                                             }
                                                         } else {
-                                                            Log.e("friends", "Error Loading Friends" + e);
                                                         }
                                                     }
                                                 });
@@ -164,8 +156,6 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void done(ParseException e) {
                                     if (e != null) {
-                                        Log.d("friends", "exception");
-                                        Log.d("friends", e.toString());
                                     }
                                     else {
                                         setResult(500);

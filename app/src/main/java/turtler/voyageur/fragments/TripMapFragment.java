@@ -247,7 +247,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
             // In debug mode, log the status
-            Log.d("Location Updates", "Google Play services is available.");
             return true;
         } else {
             // Get the error dialog from Google Play services

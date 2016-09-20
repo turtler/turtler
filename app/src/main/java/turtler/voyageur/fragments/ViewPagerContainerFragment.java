@@ -1,18 +1,42 @@
 package turtler.voyageur.fragments;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import org.w3c.dom.Text;
+
+import java.util.HashMap;
+import java.util.List;
 
 import turtler.voyageur.R;
 import turtler.voyageur.adapters.TripFragmentPageAdapter;
+import turtler.voyageur.models.Trip;
+import turtler.voyageur.models.User;
 
 /**
  * Created by skulkarni on 9/14/16.
@@ -23,6 +47,13 @@ public class ViewPagerContainerFragment extends Fragment {
     public ViewPager viewPager;
     TripFragmentPageAdapter pagerAdapter;
     String tripImage;
+    Toolbar toolbar;
+    TextView toolbarTitle;
+    AppCompatActivity parentActivity;
+    HashMap<MenuItem, String> menuItemStringHashMap = new HashMap<>();
+    Trip trip;
+    User user;
+
     public ViewPagerContainerFragment() {   }
 
     @Override
@@ -30,8 +61,15 @@ public class ViewPagerContainerFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         tripImage = getArguments().getString("tripImage");
-
         View root = inflater.inflate(R.layout.fragment_view_pager_container, container, false);
+        toolbar = (Toolbar) root.findViewById(R.id.toolbarViewPager);
+        toolbarTitle = (TextView) root.findViewById(R.id.tvToolbarTitle);
+        parentActivity = (AppCompatActivity) getActivity();
+        parentActivity.setSupportActionBar(toolbar);
+        parentActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        parentActivity.getSupportActionBar().setDisplayShowHomeEnabled(false);
+
+
 
         pagerAdapter = new TripFragmentPageAdapter(getChildFragmentManager());
         viewPager = (ViewPager) root.findViewById(R.id.viewPager);
@@ -44,7 +82,90 @@ public class ViewPagerContainerFragment extends Fragment {
         viewPager.setAdapter(pagerAdapter);
         tabsStrip.setViewPager(viewPager);
 
+        populateTripUI();
         return root;
+    }
+
+    private void populateTripUI() {
+        String tripId = getArguments().getString("tripId");
+        ParseQuery<Trip> query = ParseQuery.getQuery("Trip");
+        query.orderByDescending("date").getInBackground(tripId, new GetCallback<Trip>() {
+            @Override
+            public void done(Trip object, ParseException e) {
+                trip = object;
+                toolbarTitle.setText(trip.getName().toString());
+                trip.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
+                    @Override
+                    public void done(List<User> users, ParseException e) {
+                        if (users != null) {
+                            user = users.get(0);
+                            View b = parentActivity.findViewById(R.id.fabAddEvent);
+                            if (user.getEmail().equals(ParseUser.getCurrentUser().getEmail())) {
+                                b.setVisibility(View.VISIBLE);
+                            }
+                            else {
+                                b.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                });
+
+                try {
+                    List<User> tripFriends = trip.getTripFriendsRelation().getQuery().find();
+                    if (tripFriends.size() > 0) {
+                        addUserItems(tripFriends);
+                    }
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+    }
+
+
+    public String getInitials(String fullName) {
+        String[] nameArray = fullName.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String name : nameArray) {
+            sb.append(name.charAt(0));
+        }
+        return sb.toString();
+    }
+
+    public void addUserItems(List<User> tripFriends) {
+        final int num = 0;
+        final Menu menu = toolbar.getMenu();
+        for (final User friend : tripFriends) {
+            final String initials = getInitials(friend.getName());
+            Glide.with(this).load(friend.getPictureUrl()).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>(100, 100) {
+                @Override
+                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                    RoundedBitmapDrawable d =
+                            RoundedBitmapDrawableFactory.create(parentActivity.getResources(), resource);
+                    d.setCircular(true);
+                    final MenuItem menuItem = menu.add(Menu.NONE, num, Menu.NONE, "");
+                    menuItem.setIcon(d);
+                    menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    menuItemStringHashMap.put(menuItem, friend.getEmail());
+                    menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            String email = menuItemStringHashMap.get(item).toString();
+                            Fragment pf = ProfileFragment.newInstance();
+                            Bundle b = new Bundle();
+                            b.putString("email", email);
+                            pf.setArguments(b);
+                            FragmentTransaction ftProfile = parentActivity.getSupportFragmentManager().beginTransaction();
+                            ftProfile.replace(R.id.flTrip, pf);
+                            ftProfile.addToBackStack("profile");
+                            ftProfile.commit();
+                            return true;
+                        }
+                    });
+                }
+            });
+        }
+
     }
 
     public TripFragmentPageAdapter getAdapter() {
