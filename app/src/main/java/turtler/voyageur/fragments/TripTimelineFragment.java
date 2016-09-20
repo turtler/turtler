@@ -87,9 +87,8 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
 
     @Override
     public void onFinishCreateEventDialog(Event event) {
-        int curSize = eventAdapter.getItemCount();
-        events.add(event);
-        eventAdapter.notifyItemInserted(curSize);
+        events.add(0, event);
+        eventAdapter.notifyItemInserted(0);
     }
 
     @Override
