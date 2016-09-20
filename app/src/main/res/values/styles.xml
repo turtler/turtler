@@ -15,11 +15,11 @@
     </style>
     <style name="EditTextTitleView" parent="android:Widget.EditText">
         <item name="android:textSize">@dimen/largetext_size</item>
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textColorHint">@color/labelLightGrey</item>
     </style>
     <style name="EditTextView" parent="android:Widget.EditText">
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/text_size</item>
     </style>
 
