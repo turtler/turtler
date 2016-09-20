@@ -28,6 +28,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 import turtler.voyageur.R;
 import turtler.voyageur.fragments.TripMapFragment;
 import turtler.voyageur.fragments.ViewPagerContainerFragment;
@@ -136,7 +137,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             e.printStackTrace();
         }
         if (images.size() > 0) {
-            Glide.with(mContext).load(images.get(0).getPictureUrl()).into(viewHolder.ivfirstImage);
+            Glide.with(mContext).load(images.get(0).getPictureUrl()).bitmapTransform(new RoundedCornersTransformation(mContext, 3, 3)).into(viewHolder.ivfirstImage);
         }
         if (ev.getEventDay() != null) {
             viewHolder.tvDayLabel.setText("Day " + ev.getEventDay());
@@ -155,7 +156,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             viewHolder.tvTitle.setText(ev.getTitle());
         }
         final ArrayList<ImageView> imageViews = new ArrayList<>(Arrays.asList(viewHolder.ivImage1, viewHolder.ivImage2, viewHolder.ivImage3, viewHolder.ivImage4));
-        ev.getFriendsRelation().getQuery().findInBackground(new FindCallback<User>() {
+        ev.getFriendsRelation().getQuery().selectKeys(new ArrayList<>(Arrays.asList("pictureUrl"))).findInBackground(new FindCallback<User>() {
             @Override
             public void done(List<User> objects, ParseException e) {
                 if (objects.size() == 0) {
