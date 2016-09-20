@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,7 +76,6 @@ public class CreateEventFragment extends DialogFragment {
     @BindView(R.id.etTitle) EditText etTitle;
     @BindView(R.id.etCaption) EditText etCaption;
     @BindView(R.id.etDateTime) EditText etDateTime;
-    @BindView(R.id.btnSaveEvent) Button btnSaveEvent;
     GoogleApiClient mGoogleApiClient;
 
     Trip currentTrip;
@@ -172,9 +172,9 @@ public class CreateEventFragment extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_create_event, container, false);
-        getDialog().setCanceledOnTouchOutside(true);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        final View view = inflater.inflate(R.layout.fragment_create_event, null);
         unbinder = ButterKnife.bind(this, view);
         etDateTime.setText("Now"); //automatically shows current time
         if (imageId != "") {
@@ -233,7 +233,19 @@ public class CreateEventFragment extends DialogFragment {
         }
 
         setupListeners();
-        return view;
+
+        return new AlertDialog.Builder(getActivity()).setTitle("Create New Event").setView(view)
+                .setPositiveButton("Save",  new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveEvent();
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).create();
     }
 
     public void setupListeners() {
@@ -244,56 +256,6 @@ public class CreateEventFragment extends DialogFragment {
             }
         });
 
-        btnSaveEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final Event newEvent = new Event();
-                String caption = etCaption.getText().toString();
-                newEvent.setCaption(caption);
-                newEvent.setDate(calendar.getTime()); //if not set by user, defaults to now
-                final User user = (User) User.getCurrentUser();
-                newEvent.setCreator(user);
-                newEvent.setTrip(tripId);
-                newEvent.setTitle(etTitle.getText().toString());
-                newEvent.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        final Marker parseMarker = new Marker();
-                        if (chosenLocation != null) {
-                            parseMarker.setLatitude(chosenLocation.getLatitude());
-                            parseMarker.setLongitude(chosenLocation.getLongitude());
-                        } else {
-                            parseMarker.setLatitude(mLastLocation.getLatitude());
-                            parseMarker.setLongitude(mLastLocation.getLongitude());
-                        }
-                        for (String friendId : friendsListIds) {
-                            User newFriend = ParseObject.createWithoutData(User.class, friendId);
-                            newEvent.addFriend(newFriend);
-                        }
-                        parseMarker.setUser(user);
-                        parseMarker.setEvent(newEvent);
-                        parseMarker.setTrip(tripId);
-                        parseMarker.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                currentTrip.addEvent(newEvent);
-
-                                newEvent.addMarker(parseMarker);
-                                if (image != null) {
-                                    Image i = user.createWithoutData(Image.class, image.getObjectId());
-                                    newEvent.addImage(i);
-                                    if (currentTrip.getCoverPhotoURL() == null) {
-                                        currentTrip.addImage(i);
-                                    }
-                                }
-                                listener.onFinishCreateEventDialog(newEvent);
-                                dismiss();
-                            }
-                        });
-                    }
-                });
-            }
-        });
         ivUploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -453,4 +415,53 @@ public class CreateEventFragment extends DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
     }
+
+    public void saveEvent() {
+        final Event newEvent = new Event();
+        String caption = etCaption.getText().toString();
+        newEvent.setCaption(caption);
+        newEvent.setDate(calendar.getTime()); //if not set by user, defaults to now
+        final User user = (User) User.getCurrentUser();
+        newEvent.setCreator(user);
+        newEvent.setTrip(tripId);
+        newEvent.setTitle(etTitle.getText().toString());
+        newEvent.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                final Marker parseMarker = new Marker();
+                if (chosenLocation != null) {
+                    parseMarker.setLatitude(chosenLocation.getLatitude());
+                    parseMarker.setLongitude(chosenLocation.getLongitude());
+                } else {
+                    parseMarker.setLatitude(mLastLocation.getLatitude());
+                    parseMarker.setLongitude(mLastLocation.getLongitude());
+                }
+                for (String friendId : friendsListIds) {
+                    User newFriend = ParseObject.createWithoutData(User.class, friendId);
+                    newEvent.addFriend(newFriend);
+                }
+                parseMarker.setUser(user);
+                parseMarker.setEvent(newEvent);
+                parseMarker.setTrip(tripId);
+                parseMarker.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        currentTrip.addEvent(newEvent);
+
+                        newEvent.addMarker(parseMarker);
+                        if (image != null) {
+                            Image i = user.createWithoutData(Image.class, image.getObjectId());
+                            newEvent.addImage(i);
+                            if (currentTrip.getCoverPhotoURL() == null) {
+                                currentTrip.addImage(i);
+                            }
+                        }
+                        listener.onFinishCreateEventDialog(newEvent);
+                        dismiss();
+                    }
+                });
+            }
+        });
+    }
+
 }
