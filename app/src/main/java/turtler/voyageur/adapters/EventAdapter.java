@@ -15,16 +15,19 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import turtler.voyageur.R;
 import turtler.voyageur.fragments.TripMapFragment;
 import turtler.voyageur.fragments.ViewPagerContainerFragment;
@@ -32,6 +35,7 @@ import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
+import turtler.voyageur.models.User;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
@@ -49,6 +53,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         @BindView(R.id.tvCaption) TextView tvCaption;
         @BindView(R.id.tvDate) TextView tvDate;
         @BindView(R.id.tvDayLabel) TextView tvDayLabel;
+        @BindView(R.id.ivImage1) ImageView ivImage1;
+        @BindView(R.id.ivImage2) ImageView ivImage2;
+        @BindView(R.id.ivImage3) ImageView ivImage3;
+        @BindView(R.id.ivImage4) ImageView ivImage4;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -132,6 +140,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }
         if (ev.getEventDay() != null) {
             viewHolder.tvDayLabel.setText("Day " + ev.getEventDay());
+            viewHolder.tvDayLabel.setVisibility(View.VISIBLE);
+            viewHolder.tvDayLabel.setPadding(0, 0, 0, 10);
         } else {
             viewHolder.tvDayLabel.setText("");
         }
@@ -144,6 +154,24 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         if (ev.getTitle() != null) {
             viewHolder.tvTitle.setText(ev.getTitle());
         }
+        final ArrayList<ImageView> imageViews = new ArrayList<>(Arrays.asList(viewHolder.ivImage1, viewHolder.ivImage2, viewHolder.ivImage3, viewHolder.ivImage4));
+        ev.getFriendsRelation().getQuery().findInBackground(new FindCallback<User>() {
+            @Override
+            public void done(List<User> objects, ParseException e) {
+                if (objects.size() == 0) {
+                    return;
+                }
+                for (int i = 0; i < objects.size(); i++) {
+                    if (i >= 4) {
+                        break;
+                    }
+                    ImageView currentImageView = imageViews.get(i);
+                    currentImageView.setMinimumHeight(80);
+                    currentImageView.setMinimumWidth(80);
+                    Glide.with(mContext).load(objects.get(i).getPictureUrl()).bitmapTransform(new CropCircleTransformation(mContext)).into(imageViews.get(i));
+                }
+            }
+        });
     }
 
     @Override

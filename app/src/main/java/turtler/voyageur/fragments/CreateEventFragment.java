@@ -35,6 +35,7 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
@@ -92,6 +93,7 @@ public class CreateEventFragment extends DialogFragment {
     private TransferUtility transferUtility;
     ArrayList<String> friendsListIds = new ArrayList<String>();
     CreateEventFragmentListener listener;
+    List<User> friends;
 
     public CreateEventFragment() {}
 
@@ -194,7 +196,7 @@ public class CreateEventFragment extends DialogFragment {
                 view.findViewById(R.id.etFriendsTripEvent);
         Trip t = ParseObject.createWithoutData(Trip.class, tripId);
         try {
-            List<User> friends = t.getTripFriendsRelation().getQuery().find();
+            friends = t.getTripFriendsRelation().getQuery().find();
             List<UserEntry> userEntries = new ArrayList<UserEntry>();
             for (int i = 0; i < friends.size(); i++) {
                 UserEntry newUserEntry = new UserEntry();
@@ -248,7 +250,6 @@ public class CreateEventFragment extends DialogFragment {
                 String caption = etCaption.getText().toString();
                 newEvent.setCaption(caption);
                 newEvent.setDate(calendar.getTime()); //if not set by user, defaults to now
-
                 final User user = (User) User.getCurrentUser();
                 newEvent.setCreator(user);
                 newEvent.setTrip(tripId);
