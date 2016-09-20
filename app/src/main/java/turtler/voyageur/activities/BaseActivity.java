@@ -42,6 +42,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -152,6 +154,7 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
         Date today = cal.getTime();
 
         ParseQuery<Trip> tripParseQuery = ParseQuery.getQuery("Trip");
+        tripParseQuery.selectKeys(new ArrayList<>(Arrays.asList("objectId")));
         tripParseQuery.whereLessThan("startDate", today);
         tripParseQuery.whereGreaterThanOrEqualTo("endDate", today);
         tripParseQuery.getFirstInBackground(new GetCallback<Trip>() {

@@ -23,7 +23,6 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +68,6 @@ public class TripActivity extends AppCompatActivity {
 
         populateTripUI();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
