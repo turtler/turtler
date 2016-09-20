@@ -1,23 +1,36 @@
 package turtler.voyageur.activities;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,7 +51,9 @@ public class TripActivity extends AppCompatActivity {
     @BindView(R.id.tvToolbarTitle) TextView toolbarTitle;
     Trip trip;
     User user;
+    ArrayList<MenuItem> menuItems = new ArrayList<>();
     HashMap<MenuItem, String> menuItemStringHashMap = new HashMap<>();
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,27 +128,39 @@ public class TripActivity extends AppCompatActivity {
     }
 
     public void addUserItems(List<User> tripFriends) {
-        int num = 0;
-        Menu menu = toolbar.getMenu();
-        for (User friend : tripFriends) {
-            String initials = getInitials(friend.getName());
-            final MenuItem menuItem = menu.add(Menu.NONE, num, Menu.NONE, initials);
-            menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            menuItemStringHashMap.put(menuItem, friend.getEmail());
-            menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        final int num = 0;
+        final Menu menu = toolbar.getMenu();
+        final Context c = this;
+        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
+        for (final User friend : tripFriends) {
+            final String initials = getInitials(friend.getName());
+            Glide.with(this).load(friend.getPictureUrl()).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>(100, 100) {
                 @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    String email = menuItemStringHashMap.get(item).toString();
-
-                    Fragment pf = ProfileFragment.newInstance();
-                    Bundle b = new Bundle();
-                    b.putString("email", email);
-                    pf.setArguments(b);
-                    FragmentTransaction ftProfile = getSupportFragmentManager().beginTransaction();
-                    ftProfile.replace(R.id.flTrip, pf);
-                    ftProfile.addToBackStack("profile");
-                    ftProfile.commit();
-                    return true;
+                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                    RoundedBitmapDrawable d =
+                            RoundedBitmapDrawableFactory.create(c.getResources(), resource);
+                    d.setCircular(true);
+                    final MenuItem menuItem = menu.add(Menu.NONE, num, Menu.NONE, "");
+                    menuItem.setIcon(d);
+                    menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    menuItemStringHashMap.put(menuItem, friend.getEmail());
+                    menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            String email = menuItemStringHashMap.get(item).toString();
+                            Fragment pf = ProfileFragment.newInstance();
+                            Bundle b = new Bundle();
+                            b.putString("email", email);
+                            pf.setArguments(b);
+                            FragmentTransaction ftProfile = getSupportFragmentManager().beginTransaction();
+                            ftProfile.replace(R.id.flTrip, pf);
+                            ftProfile.addToBackStack("profile");
+                            ftProfile.commit();
+                            return true;
+                        }
+                    });
+                    menuItems.add(menuItem);
                 }
             });
         }
