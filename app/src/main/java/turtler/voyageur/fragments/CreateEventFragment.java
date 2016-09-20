@@ -26,6 +26,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.orhanobut.dialogplus.DialogPlus;
@@ -35,7 +36,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
-import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -181,7 +181,7 @@ public class CreateEventFragment extends DialogFragment {
                 public void done(Image item, ParseException e) {
                     if (e == null) {
                         image = item;
-                        Picasso.with(getContext()).load(image.getPictureUrl()).into(ivImagePreview);
+                        Glide.with(getContext()).load(image.getPictureUrl()).into(ivImagePreview);
                     }
                 }
             });

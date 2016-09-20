@@ -9,13 +9,12 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import turtler.voyageur.R;
-import turtler.voyageur.models.User;
 import turtler.voyageur.models.UserEntry;
 
 /**
@@ -65,7 +64,7 @@ public class UserItemArrayAdapter extends ArrayAdapter<UserEntry> {
         nameTextView.setText(userName);
 
         ImageView userProfImage = (ImageView) row.findViewById(R.id.ivUserProfPic);
-        Picasso.with(getContext()).load(user.imgUrl).into(userProfImage);
+        Glide.with(getContext()).load(user.imgUrl).into(userProfImage);
 
 
         row.setOnClickListener(new View.OnClickListener() {
