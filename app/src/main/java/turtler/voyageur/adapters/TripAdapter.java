@@ -6,26 +6,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.parse.ParseException;
+import com.bumptech.glide.Glide;
 import com.parse.ParseObject;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.activities.TripActivity;
-import turtler.voyageur.models.Event;
-import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.utils.TimeFormatUtils;
 
@@ -94,10 +89,11 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
         if (t.getCoverPhotoURL() != null) {
             coverPhotoURL = t.getCoverPhotoURL().getPictureUrl();
-            Picasso.with(mContext).load(t.getCoverPhotoURL().getPictureUrl()).into(viewHolder.ivCoverImage);
+            Glide.with(mContext).load(t.getCoverPhotoURL().getPictureUrl()).into(viewHolder.ivCoverImage);
         }
         else {
-            Picasso.with(mContext).load(coverPhotoURL).into(viewHolder.ivCoverImage);
+
+            Glide.with(mContext).load(coverPhotoURL).into(viewHolder.ivCoverImage);
 
         }
 

@@ -10,12 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
-import com.squareup.picasso.Picasso;
 
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
@@ -128,7 +128,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             e.printStackTrace();
         }
         if (images.size() > 0) {
-            Picasso.with(mContext).load(images.get(0).getPictureUrl()).into(viewHolder.ivfirstImage);
+            Glide.with(mContext).load(images.get(0).getPictureUrl()).into(viewHolder.ivfirstImage);
         }
         if (ev.getEventDay() != null) {
             viewHolder.tvDayLabel.setText("Day " + ev.getEventDay());

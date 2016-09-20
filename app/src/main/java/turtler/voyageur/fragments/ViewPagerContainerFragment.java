@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import turtler.voyageur.R;
 import turtler.voyageur.adapters.TripFragmentPageAdapter;
@@ -38,7 +38,7 @@ public class ViewPagerContainerFragment extends Fragment {
         ivCover = (ImageView) root.findViewById(R.id.ivCoverImage);
         tabsStrip = (PagerSlidingTabStrip) root.findViewById(R.id.tabStrip);
         if (tripImage != null) {
-            Picasso.with(getContext()).load(tripImage).into(ivCover);
+            Glide.with(getContext()).load(tripImage).into(ivCover);
         }
 
         viewPager.setAdapter(pagerAdapter);
