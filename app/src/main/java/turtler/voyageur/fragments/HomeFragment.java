@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
@@ -52,7 +51,7 @@ public class HomeFragment extends Fragment {
         gridAdapter = new ImageGridAdapter(getContext(), getImages());
         gridView.setAdapter(gridAdapter);
         gridView.setLayoutManager(new StaggeredGridLayoutManager(3, 1));
-
+        
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
