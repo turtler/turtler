@@ -66,6 +66,7 @@
 
     <TextView
         style="@style/EditTextView"
+        android:background="@null"
         android:layout_width="wrap_content"
         android:layout_height="80dp"
         android:id="@+id/tvFriendsList"
