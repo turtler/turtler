@@ -425,6 +425,9 @@ public class CreateEventFragment extends DialogFragment {
         newEvent.setCreator(user);
         newEvent.setTrip(tripId);
         newEvent.setTitle(etTitle.getText().toString());
+        if (image != null) {
+            newEvent.setImageURL(image.getPictureUrl());
+        }
         newEvent.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -447,7 +450,6 @@ public class CreateEventFragment extends DialogFragment {
                     @Override
                     public void done(ParseException e) {
                         currentTrip.addEvent(newEvent);
-
                         newEvent.addMarker(parseMarker);
                         if (image != null) {
                             Image i = user.createWithoutData(Image.class, image.getObjectId());

@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -99,6 +100,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 Trip t = null;
                 try {
                     t = mEvents.get(0).getTrip().fetchIfNeeded();
+                    t.getTripFriendsRelation().getQuery().findInBackground(new FindCallback<User>() {
+                        @Override
+                        public void done(List<User> objects, ParseException e) {
+                            if (objects != null && objects.size() > 0) {
+                                for (int i = 0; i < objects.size(); i++) {
+                                    String picUrl = objects.get(i).getPictureUrl();
+                                    Glide.with(mContext).load(picUrl).diskCacheStrategy(DiskCacheStrategy.SOURCE).preload();
+                                }
+                            }
+                        }
+                    });
                     startDate = LocalDate.fromDateFields(t.getStartDate());
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -130,15 +142,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(EventAdapter.ViewHolder viewHolder, int position) {
         Event ev = mEvents.get(position);
-        ArrayList<Image> images = new ArrayList<>();
-        try {
-            images = (ArrayList<Image>) ev.imagesRelation().getQuery().find();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (ev.getImageURL() != null) {
+            Glide.with(mContext).load(ev.getImageURL()).bitmapTransform(new RoundedCornersTransformation(mContext, 3, 3)).into(viewHolder.ivfirstImage);
         }
-        if (images.size() > 0) {
-            Glide.with(mContext).load(images.get(0).getPictureUrl()).bitmapTransform(new RoundedCornersTransformation(mContext, 3, 3)).into(viewHolder.ivfirstImage);
-        }
+
         if (ev.getEventDay() != null) {
             viewHolder.tvDayLabel.setText("Day " + ev.getEventDay());
             viewHolder.tvDayLabel.setVisibility(View.VISIBLE);

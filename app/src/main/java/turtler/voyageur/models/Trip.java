@@ -53,10 +53,6 @@ public class Trip extends ParseObject {
         put("endDate", endDate);
     }
 
-    public ArrayList<User> getTripFriends() {
-        return tripFriends;
-    }
-
     public ArrayList<Event> getEvents() {
         return events;
     }
