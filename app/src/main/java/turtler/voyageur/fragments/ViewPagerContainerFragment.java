@@ -3,6 +3,7 @@ package turtler.voyageur.fragments;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -50,6 +51,7 @@ public class ViewPagerContainerFragment extends Fragment {
     Toolbar toolbar;
     TextView toolbarTitle;
     AppCompatActivity parentActivity;
+    CollapsingToolbarLayout collapsingToolbarLayout;
     HashMap<MenuItem, String> menuItemStringHashMap = new HashMap<>();
     Trip trip;
     User user;
@@ -64,13 +66,19 @@ public class ViewPagerContainerFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_view_pager_container, container, false);
         toolbar = (Toolbar) root.findViewById(R.id.toolbarViewPager);
         toolbarTitle = (TextView) root.findViewById(R.id.tvToolbarTitle);
+        collapsingToolbarLayout = (CollapsingToolbarLayout) root.findViewById(R.id.collapsing_toolbar);
         parentActivity = (AppCompatActivity) getActivity();
         parentActivity.setSupportActionBar(toolbar);
+        setHasOptionsMenu(true);
         parentActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         parentActivity.getSupportActionBar().setDisplayShowHomeEnabled(false);
 
-
-
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    parentActivity.onBackPressed();
+                }
+        });
         pagerAdapter = new TripFragmentPageAdapter(getChildFragmentManager());
         viewPager = (ViewPager) root.findViewById(R.id.viewPager);
         ivCover = (ImageView) root.findViewById(R.id.ivCoverImage);
@@ -93,7 +101,7 @@ public class ViewPagerContainerFragment extends Fragment {
             @Override
             public void done(Trip object, ParseException e) {
                 trip = object;
-                toolbarTitle.setText(trip.getName().toString());
+                collapsingToolbarLayout.setTitle(trip.getName().toString());
                 trip.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
                     @Override
                     public void done(List<User> users, ParseException e) {
@@ -162,6 +170,8 @@ public class ViewPagerContainerFragment extends Fragment {
                             return true;
                         }
                     });
+
+
                 }
             });
         }
