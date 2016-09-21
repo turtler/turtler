@@ -3,13 +3,21 @@ package turtler.voyageur.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,15 +91,37 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     private PolylineOptions rectOptions = new PolylineOptions();
     private LatLng selectedPoint;
     private User user;
+    Bitmap bitmap;
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
      */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
+    private static Bitmap getBitmap(VectorDrawable vectorDrawable) {
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return bitmap;
+    }
+
+    private static Bitmap getBitmap(Context context, int drawableId) {
+        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
+        if (drawable instanceof BitmapDrawable) {
+            return BitmapFactory.decodeResource(context.getResources(), drawableId);
+        } else if (drawable instanceof VectorDrawable) {
+            return getBitmap((VectorDrawable) drawable);
+        } else {
+            throw new IllegalArgumentException("unsupported drawable type");
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        bitmap = getBitmap(getContext(), R.drawable.ic_map_marker);
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         tripId = getActivity().getIntent().getStringExtra("tripId");
         Trip tripObj = ParseObject.createWithoutData(Trip.class, tripId);
@@ -118,8 +148,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                             if (e == null) {
                                 for (int i = 0; i < markers.size(); i++) {
                                     final turtler.voyageur.models.Marker m = (turtler.voyageur.models.Marker) markers.get(i);
-                                    final BitmapDescriptor defaultMarker =
-                                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
                                     final LatLng point = new LatLng(m.getLatitudeKey(), m.getLongitudeKey());
                                     m.getEvent().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
                                         @Override
@@ -129,12 +157,12 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                                                         .position(point)
                                                         .title(object.getString("title"))
                                                         .snippet(object.getString("caption"))
-                                                        .icon(defaultMarker));
+                                                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
                                             }
                                             else {
                                                 com.google.android.gms.maps.model.Marker marker = gmap.addMarker(new MarkerOptions()
                                                         .position(point)
-                                                        .icon(defaultMarker));
+                                                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
                                             }
                                             rectOptions.add(new LatLng(point.latitude, point.longitude));
                                             Polyline polyline = gmap.addPolyline(rectOptions);
@@ -391,14 +419,11 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     @Override
     public void onFinishCreateEventDialog(Event event) {
         //add marker and polyline to map
-        BitmapDescriptor defaultMarker =
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-
         com.google.android.gms.maps.model.Marker marker = map.addMarker(new MarkerOptions()
                 .position(selectedPoint)
                 .title(event.getTitle())
                 .snippet(event.getCaption())
-                .icon(defaultMarker));
+                .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
         dropPinEffect(marker);
         rectOptions.add(new LatLng(selectedPoint.latitude, selectedPoint.longitude));
         map.addPolyline(rectOptions);
