@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.ListHolder;
 import com.orhanobut.dialogplus.OnItemClickListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -56,6 +58,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import turtler.voyageur.R;
 import turtler.voyageur.VoyageurApplication;
+import turtler.voyageur.adapters.DialogGridItemAdapter;
 import turtler.voyageur.adapters.UserItemArrayAdapter;
 import turtler.voyageur.models.Event;
 import turtler.voyageur.models.Image;
@@ -261,8 +264,11 @@ public class CreateEventFragment extends DialogFragment {
             public void onClick(View view) {
                 getDialog().hide();
                 DialogPlus dialog = DialogPlus.newDialog(getContext())
-                        .setAdapter(new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, new String[]{getString(R.string.take_photo), getString(R.string.choose_library)}))
+                        .setContentHolder(new ListHolder())
                         .setExpanded(true, 200)
+                        .setPadding(10, 10, 10, 10)
+                        .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
+                        .setAdapter(new DialogGridItemAdapter(getContext()))
                         .setOnItemClickListener(new OnItemClickListener() {
                             @Override
                             public void onItemClick(DialogPlus dialog, Object item, View view, int position) {

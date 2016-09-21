@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.GridHolder;
+import com.orhanobut.dialogplus.ListHolder;
 import com.orhanobut.dialogplus.OnItemClickListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -55,6 +57,7 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
 import turtler.voyageur.VoyageurApplication;
+import turtler.voyageur.adapters.DialogGridItemAdapter;
 import turtler.voyageur.fragments.CreateEventFragment;
 import turtler.voyageur.fragments.HomeFragment;
 import turtler.voyageur.fragments.ProfileFragment;
@@ -214,10 +217,13 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
 
     public void showCameraOptions() {
         DialogPlus dialog = DialogPlus.newDialog(this)
-                .setContentHolder(new GridHolder(2))
-                .setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new String[]{getString(R.string.take_photo), getString(R.string.choose_library)}))
-                .setExpanded(true, 200)
+                .setContentHolder(new ListHolder())
+                .setExpanded(true, 350)
                 .setGravity(Gravity.CENTER)
+                .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
+                .setContentWidth(600)
+                .setPadding(50, 50, 50, 50)
+                .setAdapter(new DialogGridItemAdapter(this))
                 .setOnItemClickListener(new OnItemClickListener() {
                     @Override
                     public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
