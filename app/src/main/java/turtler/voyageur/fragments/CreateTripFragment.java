@@ -105,7 +105,8 @@ public class CreateTripFragment extends DialogFragment {
 
 
         setupListeners();
-        return new AlertDialog.Builder(getActivity()).setTitle("Create New Trip").setView(view)
+
+        AlertDialog dialog = new AlertDialog.Builder(getActivity()).setTitle("Create New Trip").setView(view)
                 .setPositiveButton("Save",  new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -117,6 +118,9 @@ public class CreateTripFragment extends DialogFragment {
                         dialog.dismiss();
                     }
                 }).create();
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
+        dialog.show();
+        return dialog;
     }
 
     @Override
