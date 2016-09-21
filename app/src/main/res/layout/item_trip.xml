@@ -18,28 +18,33 @@
             android:transitionName="cover"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.65"></ImageView>
+            android:alpha="0.85"></ImageView>
         <TextView
             android:id="@+id/tvTripName"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:maxLines="3"
-            android:padding="8dp"
-            android:layout_marginTop="10dp"
-            tools:text="@string/title"
-            android:textColor="#222"
+            android:padding="5dp"
+            tools:text="title"
+            android:alpha="0.5"
+            android:textColor="#fff"
             android:textStyle="bold"
+            android:background="@color/black"
             android:textSize="22dp"
-            android:gravity="bottom|right" />
+            android:layout_gravity="top"
+            android:gravity="bottom|left" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:text="8/2/2016 -"
-            android:background="#80ffffff"
-            android:id="@+id/tvTripDate" />
-            android:textSize="22dp" />
+            android:padding="2dp"
+            tools:text="8/2/2016 - 8/6/2016"
+            android:layout_gravity="top"
+            android:gravity="right"
+            android:textColor="#d9d9d9"
+            android:id="@+id/tvTripDate"
+            android:textSize="12dp" />
 
     </android.support.v7.widget.CardView>
 
