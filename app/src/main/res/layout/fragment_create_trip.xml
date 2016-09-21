@@ -1,63 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingPrefix"
-    android:orientation="vertical" android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_margin="15dp"
     android:padding="30dp"
-    android:layout_height="500dp">
+    android:layout_height="match_parent">
 
     <EditText
-        style="@style/EditTextTitleView"
+        style="@style/EditTextView"
         tools:ignore="MissingPrefix"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/hint_trip_name"
         android:id="@+id/etTripName"
         android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/tvStartDate"
-        android:layout_alignStart="@+id/tvStartDate"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-
-    <TextView
-        style="@style/FragmentTextViewLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/start_date"
-        android:id="@+id/tvStartDate"
-        android:layout_alignBottom="@+id/etStartDate"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignRight="@+id/tvFriendsTrip"
-        android:layout_alignEnd="@+id/tvFriendsTrip" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
 
     <EditText
         style="@style/EditTextView"
-        android:layout_width="wrap_content"
+        app:layout_widthPercent="45%"
         android:layout_height="wrap_content"
         android:inputType="date"
         android:ems="10"
+        android:hint="Start Date"
         android:id="@+id/etStartDate"
         android:layout_below="@+id/etTripName"
-        android:layout_alignRight="@+id/etTripName"
-        android:layout_alignEnd="@+id/etTripName"
-        android:layout_toRightOf="@+id/tvStartDate"
-        android:layout_toEndOf="@+id/tvStartDate"
-        android:singleLine="false" />
+        android:layout_alignParentStart="true" />
 
     <TextView
-        style="@style/FragmentTextViewLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/end_date"
-        android:id="@+id/tvEndDate"
-        android:layout_alignBottom="@+id/etEndDate"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignRight="@+id/tvStartDate"
-        android:layout_alignEnd="@+id/tvStartDate" />
-
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="to"
+        android:textAlignment="center"
+        app:layout_widthPercent="10%"
+        android:id="@+id/textView"
+        android:layout_alignBottom="@+id/etStartDate"
+        android:layout_toEndOf="@+id/etStartDate" />
 
     <EditText
         style="@style/EditTextView"
@@ -65,12 +48,11 @@
         android:layout_height="wrap_content"
         android:inputType="date"
         android:ems="10"
+        app:layout_widthPercent="45%"
+        android:hint="End Date"
         android:id="@+id/etEndDate"
-        android:layout_below="@+id/tvStartDate"
-        android:layout_alignRight="@+id/etStartDate"
-        android:layout_alignEnd="@+id/etStartDate"
-        android:layout_toRightOf="@+id/tvStartDate"
-        android:layout_toEndOf="@+id/tvStartDate" />
+        android:layout_above="@+id/etFriendsTrip"
+        android:layout_alignParentEnd="true" />
 
     <AutoCompleteTextView
         style="@style/EditTextView"
@@ -78,21 +60,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:id="@+id/etFriendsTrip"
-        android:layout_below="@+id/tvEndDate"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toRightOf="@+id/tvEndDate"
-        android:layout_toEndOf="@+id/tvEndDate" />
-
-    <TextView
-        style="@style/FragmentTextViewLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/friends"
-        android:id="@+id/tvFriendsTrip"
-        android:paddingRight="20dp"
-        android:layout_alignBottom="@+id/etFriendsTrip"
-        android:layout_alignParentLeft="true"
+        android:hint="Who are you with?"
+        android:layout_below="@+id/etStartDate"
         android:layout_alignParentStart="true" />
 
     <TextView
@@ -102,16 +71,8 @@
         android:id="@+id/tvFriendsList"
         android:layout_alignRight="@+id/etFriendsTrip"
         android:layout_alignEnd="@+id/etFriendsTrip"
-        android:layout_toRightOf="@+id/tvFriendsTrip"
-        android:layout_toEndOf="@+id/tvFriendsTrip"
-        android:layout_below="@+id/etFriendsTrip" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/save"
-        android:id="@+id/btnSaveTrip"
-        android:layout_below="@+id/tvFriendsList"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/etFriendsTrip"
+        android:layout_alignStart="@+id/etFriendsTrip" />
 
-</RelativeLayout>
+
+</android.support.percent.PercentRelativeLayout>
