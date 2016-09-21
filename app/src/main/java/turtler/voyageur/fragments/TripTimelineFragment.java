@@ -28,7 +28,6 @@ import turtler.voyageur.models.Trip;
  */
 public class TripTimelineFragment extends android.support.v4.app.Fragment implements CreateEventFragment.CreateEventFragmentListener {
     @BindView(R.id.rvEvents) RecyclerView rvEvents;
-    @BindView(R.id.fabAddEvent) FloatingActionButton fabAddEvent;
     Unbinder unbinder;
     Trip trip;
     EventAdapter eventAdapter;
@@ -53,6 +52,7 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
         events = new ArrayList<>();
         populateEvents();
 
+        FloatingActionButton fabAddEvent = (FloatingActionButton) getActivity().findViewById(R.id.fabAddEvent);
         fabAddEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

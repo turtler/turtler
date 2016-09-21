@@ -54,6 +54,11 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
         rvTrips.setAdapter(tripAdapter);
         rvTrips.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        FloatingActionButton fabAddEvent = (FloatingActionButton) getActivity().findViewById(R.id.fabAddEvent);
+        if (fabAddEvent != null) {
+            fabAddEvent.setVisibility(View.GONE);
+        }
+
         fabAddTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,6 +73,7 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
         User currentUser;
         if (getArguments() != null && getArguments().containsKey("email")) {
             fabAddTrip.setVisibility(View.GONE);
+
             String email = getArguments().getString("email");
             ParseQuery<User> pq = new ParseQuery("_User");
             pq.whereEqualTo("email", email);
