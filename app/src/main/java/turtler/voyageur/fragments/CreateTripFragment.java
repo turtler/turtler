@@ -1,14 +1,15 @@
 package turtler.voyageur.fragments;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,11 +38,8 @@ import turtler.voyageur.utils.TimeFormatUtils;
  */
 public class CreateTripFragment extends DialogFragment {
     @BindView(R.id.etTripName) EditText etTripName;
-    @BindView(R.id.tvStartDate) TextView tvStartDate;
     @BindView(R.id.etStartDate) EditText etStartDate;
-    @BindView(R.id.tvEndDate) TextView tvEndDate;
     @BindView(R.id.etEndDate) EditText etEndDate;
-    @BindView(R.id.btnSaveTrip) Button btnSaveTrip;
     Date startDate;
     Date endDate;
     ArrayList<String> friendsListIds = new ArrayList<String>();
@@ -60,8 +58,9 @@ public class CreateTripFragment extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_create_trip, container);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        final View view = inflater.inflate(R.layout.fragment_create_trip, null);
         unbinder = ButterKnife.bind(this, view);
         User u = (User) ParseUser.getCurrentUser();
         try {
@@ -106,7 +105,18 @@ public class CreateTripFragment extends DialogFragment {
 
 
         setupListeners();
-        return view;
+        return new AlertDialog.Builder(getActivity()).setTitle("Create New Trip").setView(view)
+                .setPositiveButton("Save",  new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveTrip();
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).create();
     }
 
     @Override
@@ -128,37 +138,34 @@ public class CreateTripFragment extends DialogFragment {
                 showDatePickerDialogEnd(view);
             }
         });
+    }
 
-        btnSaveTrip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String tripName = etTripName.getText().toString();
-                final Trip newTrip = new Trip(tripName);
-                if (startDate != null) {
-                    newTrip.setStartDate(startDate);
-                }
-                if (endDate != null) {
-                    newTrip.setEndDate(endDate);
-                }
-                if (friendsListIds.size() > 0) {
-                    for (int i = 0; i < friendsListIds.size(); i++) {
-                        String friendId = friendsListIds.get(i);
-                        newTrip.addTripFriend(ParseUser.createWithoutData(User.class, friendId));
-                    }
-                }
-                final User user = (User) User.getCurrentUser();
-                newTrip.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        newTrip.addTripCreator(user);
-                        user.addTrip(newTrip);
-                        CreateTripFragmentListener listener = (CreateTripFragmentListener) getTargetFragment();
-                        listener.onFinishCreateTripDialog(newTrip);
-                        dismiss();
-                    }
-
-                });
+    public void saveTrip() {
+        String tripName = etTripName.getText().toString();
+        final Trip newTrip = new Trip(tripName);
+        if (startDate != null) {
+            newTrip.setStartDate(startDate);
+        }
+        if (endDate != null) {
+            newTrip.setEndDate(endDate);
+        }
+        if (friendsListIds.size() > 0) {
+            for (int i = 0; i < friendsListIds.size(); i++) {
+                String friendId = friendsListIds.get(i);
+                newTrip.addTripFriend(ParseUser.createWithoutData(User.class, friendId));
             }
+        }
+        final User user = (User) User.getCurrentUser();
+        newTrip.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                newTrip.addTripCreator(user);
+                user.addTrip(newTrip);
+                CreateTripFragmentListener listener = (CreateTripFragmentListener) getTargetFragment();
+                listener.onFinishCreateTripDialog(newTrip);
+                dismiss();
+            }
+
         });
     }
 

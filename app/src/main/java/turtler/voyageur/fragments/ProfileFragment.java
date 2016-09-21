@@ -112,8 +112,7 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
 
     @Override
     public void onFinishCreateTripDialog(Trip newTrip) {
-        int curSize = tripAdapter.getItemCount();
-        trips.add(curSize, newTrip);
-        tripAdapter.notifyItemInserted(curSize);
+        trips.add(0, newTrip);
+        tripAdapter.notifyItemInserted(0);
     }
 }

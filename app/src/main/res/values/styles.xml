@@ -13,13 +13,9 @@
         <item name="android:textSize">@dimen/subheading_size</item>
         <item name="android:textColor">@color/labelDarkGrey</item>
     </style>
-    <style name="EditTextTitleView" parent="android:Widget.EditText">
-        <item name="android:textSize">@dimen/subheading_size</item>
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textColorHint">@color/labelLightGrey</item>
-    </style>
     <style name="EditTextView" parent="android:Widget.EditText">
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/subheading_size</item>
+        <item name="android:textColorHint">@color/labelLightGrey</item>
     </style>
 </resources>
