@@ -60,6 +60,12 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         Image i = mItems.get(position);
         Glide.with(mContext).load(i.getPictureUrl()).into(holder.image);
     }
+
+    public void updateImageList(ArrayList<Image> images) {
+        mItems = images;
+        notifyDataSetChanged();
+    }
+
     public ImageGridAdapter(Context context, ArrayList<Image> items) {
         mItems = items;
         mContext = context;

@@ -38,8 +38,8 @@ dependencies {
     compile files('src/main/java/turtler/voyageur/libs/aws-android-sdk-s3-2.3.1.jar')
     compile 'com.android.support:appcompat-v7:24.2.0'
     compile 'com.jakewharton:butterknife:8.4.0'
-    compile 'com.google.android.gms:play-services-maps:9.4.0'
-    compile 'com.google.android.gms:play-services-location:9.4.0'
+    compile 'com.google.android.gms:play-services-maps:8.4.0'
+    compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.github.hotchemi:permissionsdispatcher:2.0.7'
     compile 'com.parse:parse-android:1.13.1'
     compile 'com.parse:parseinterceptors:0.0.2'
