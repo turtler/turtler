@@ -9,6 +9,7 @@ import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
@@ -88,7 +89,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     private LocationRequest mLocationRequest;
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
-    private PolylineOptions rectOptions = new PolylineOptions();
+    private PolylineOptions rectOptions = new PolylineOptions().width(3).color(Color.rgb(159,159,159));
     private LatLng selectedPoint;
     private User user;
     Bitmap bitmap;
