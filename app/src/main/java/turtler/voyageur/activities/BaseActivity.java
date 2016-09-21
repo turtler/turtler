@@ -101,7 +101,6 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
         setContentView(R.layout.activity_base);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         toCreateEventFragment = false;
         mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
