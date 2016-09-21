@@ -62,7 +62,7 @@ public class HomeFragment extends Fragment {
                 LatLng searchLtLng = place.getLatLng();
                 ParseGeoPoint gp = new ParseGeoPoint(searchLtLng.latitude, searchLtLng.longitude);
                 ParseQuery pq = new ParseQuery("Image");
-                pq.whereNear("geoPoint", gp);
+                pq.whereWithinMiles("geoPoint", gp, 100.0);
                 pq.findInBackground(new FindCallback() {
                     @Override
                     public void done(List objects, ParseException e) {
