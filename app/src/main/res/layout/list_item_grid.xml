@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="50dp">
+    <ImageView
+        android:id="@+id/ivGridIcon"
+        tools:src="@drawable/ic_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:paddingRight="20dp"/>
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/tvGridTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        tools:text="test"
+        android:layout_toRightOf="@+id/ivGridIcon"
+        android:gravity="center_vertical" />
+
+
+
+</RelativeLayout>
