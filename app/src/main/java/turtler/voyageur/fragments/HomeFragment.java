@@ -5,12 +5,20 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.model.LatLng;
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
@@ -44,6 +52,43 @@ public class HomeFragment extends Fragment {
         gridAdapter = new ImageGridAdapter(getContext(), getImages());
         gridView.setAdapter(gridAdapter);
         gridView.setLayoutManager(new StaggeredGridLayoutManager(3, 1));
+
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                LatLng searchLtLng = place.getLatLng();
+                ParseGeoPoint gp = new ParseGeoPoint(searchLtLng.latitude, searchLtLng.longitude);
+                ParseQuery pq = new ParseQuery("Image");
+                pq.whereNear("geoPoint", gp);
+                pq.findInBackground(new FindCallback() {
+                    @Override
+                    public void done(List objects, ParseException e) {
+                        if (e != null) {
+                            Log.e("ERROR", e.toString());
+                        }
+                    }
+
+                    @Override
+                    public void done(Object images, Throwable throwable) {
+                        ArrayList<Image> imageItems = (ArrayList<Image>) images;
+                        gridAdapter.updateImageList(imageItems);
+                        Log.d("locations", images.toString());
+
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i("bleh", "An error occurred: " + status);
+            }
+        });
+
         return view;
     }
 

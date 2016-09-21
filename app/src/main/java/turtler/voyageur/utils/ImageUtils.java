@@ -12,6 +12,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -31,6 +32,8 @@ public class ImageUtils {
         String lat = Double.toString(mLastLocation.getLatitude());
         String lon = Double.toString(mLastLocation.getLongitude());
         Image parseImage = new Image();
+        ParseGeoPoint geoPoint = new ParseGeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        parseImage.setGeoPoint(geoPoint);
         parseImage.setLatitude(mLastLocation.getLatitude());
         parseImage.setLongitude(mLastLocation.getLongitude());
         parseImage.setPictureUrl(AMAZON_S3_FILE_URL + resizedFile.getName());

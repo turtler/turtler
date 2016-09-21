@@ -1,6 +1,7 @@
 package turtler.voyageur.models;
 
 import com.parse.ParseClassName;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 
 /**
@@ -43,6 +44,9 @@ public class Image extends ParseObject {
 
     public Image() {}
 
+    public void setGeoPoint(ParseGeoPoint p ) {
+        put("geoPoint", p);
+    }
     public void setPictureUrl(String pictureUrl) {
         put(PICTURE_URL_KEY, pictureUrl);
     }
