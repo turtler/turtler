@@ -93,6 +93,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     private LatLng selectedPoint;
     private User user;
     Bitmap bitmap;
+
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
@@ -134,11 +135,12 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                 }
             }
         });
+
         mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_maps_fragment));
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
-                public void onMapReady(GoogleMap map) {
+                public void onMapReady(final GoogleMap map) {
                     loadMap(map);
                     final GoogleMap gmap = map;
                     ParseQuery<Marker> query = ParseQuery.getQuery("Marker");
@@ -150,6 +152,10 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                                 for (int i = 0; i < markers.size(); i++) {
                                     final turtler.voyageur.models.Marker m = (turtler.voyageur.models.Marker) markers.get(i);
                                     final LatLng point = new LatLng(m.getLatitudeKey(), m.getLongitudeKey());
+                                    if (i == 0) {
+                                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(point, 10);
+                                        map.animateCamera(cameraUpdate);
+                                    }
                                     m.getEvent().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
                                         @Override
                                         public void done(ParseObject object, ParseException e) {
