@@ -14,7 +14,9 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -153,17 +155,34 @@ public class CreateTripFragment extends DialogFragment {
         if (endDate != null) {
             newTrip.setEndDate(endDate);
         }
+        final User user = (User) User.getCurrentUser();
+        newTrip.addTripCreator(user);
+
         if (friendsListIds.size() > 0) {
             for (int i = 0; i < friendsListIds.size(); i++) {
                 String friendId = friendsListIds.get(i);
                 newTrip.addTripFriend(ParseUser.createWithoutData(User.class, friendId));
+                ParseQuery friendQuery = new ParseQuery("User");
+                friendQuery.whereEqualTo("objectId", friendId);
+                friendQuery.findInBackground(new FindCallback() {
+                    @Override
+                    public void done(List objects, ParseException e) {
+                        if (objects != null && objects.size() > 0) {
+                            User friend = (User) objects.get(0);
+                            friend.addTrip(newTrip);
+                        }
+                    }
+
+                    @Override
+                    public void done(Object o, Throwable throwable) {
+
+                    }
+                });
             }
         }
-        final User user = (User) User.getCurrentUser();
         newTrip.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                newTrip.addTripCreator(user);
                 user.addTrip(newTrip);
                 CreateTripFragmentListener listener = (CreateTripFragmentListener) getTargetFragment();
                 listener.onFinishCreateTripDialog(newTrip);
