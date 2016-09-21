@@ -66,6 +66,13 @@ public class Event extends ParseObject {
         saveInBackground();
     }
 
+    public void setImageURL(String imgURL) {
+        put("imageUrl", imgURL);
+    }
+
+    public String getImageURL() {
+        return getString("imageUrl");
+    }
     public String getCaption() {
         return getString("caption");
     }
