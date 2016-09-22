@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,13 +20,15 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -33,7 +36,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.orhanobut.dialogplus.DialogPlus;
-import com.orhanobut.dialogplus.GridHolder;
 import com.orhanobut.dialogplus.ListHolder;
 import com.orhanobut.dialogplus.OnItemClickListener;
 import com.parse.GetCallback;
@@ -53,6 +55,7 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.PermissionUtils;
 import turtler.voyageur.R;
@@ -176,7 +179,16 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // getMenuInflater().inflate(R.menu.top_nav_bar, menu); //TODO: Make top nav bar layout
+        getMenuInflater().inflate(R.menu.overflow_menu, menu); //TODO: Make top nav bar layout
+        menu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                Intent logoutActivity = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivityForResult(logoutActivity, LOGIN_REQUEST_CODE);
+                return true;
+            }
+        });
+
         Menu bottomMenu = mBottomBar.getMenu();
         getMenuInflater().inflate(R.menu.bottom_nav_bar, bottomMenu);
         for (int i = 0; i < bottomMenu.size(); i++) {
@@ -205,10 +217,6 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
                 FragmentTransaction ftProf = getSupportFragmentManager().beginTransaction();
                 ftProf.replace(R.id.frame_layout, ProfileFragment.newInstance());
                 ftProf.commit();
-                return true;
-            case R.id.item_logout:
-                Intent logoutActivity = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivityForResult(logoutActivity, LOGIN_REQUEST_CODE);
                 return true;
             default:
                 return false;
@@ -356,4 +364,13 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
+
+
+    public void showPopup() {
+        PopupMenu popup = new PopupMenu(this, getCurrentFocus());
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.overflow_menu, popup.getMenu());
+        popup.show();
+    }
+
 }
