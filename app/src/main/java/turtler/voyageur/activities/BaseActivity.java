@@ -28,9 +28,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.Toast;
-
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -225,10 +222,10 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
     public void showCameraOptions() {
         DialogPlus dialog = DialogPlus.newDialog(this)
                 .setContentHolder(new ListHolder())
-                .setExpanded(true, 350)
+                .setExpanded(true, 550)
                 .setGravity(Gravity.CENTER)
                 .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
-                .setContentWidth(600)
+                .setContentWidth(800)
                 .setPadding(50, 50, 50, 50)
                 .setAdapter(new DialogGridItemAdapter(this))
                 .setOnItemClickListener(new OnItemClickListener() {
@@ -281,7 +278,6 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
                 Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
                 resizeAndUploadPhoto(takenImage);
             } else {
-                Toast.makeText(this, "No picture taken!", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == PICK_PHOTO_CODE) {
             if (data != null) {
@@ -295,7 +291,6 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
                     e.printStackTrace();
                 }
             } else {
-                Toast.makeText(this, "No picture chosen!", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == LOGIN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {

@@ -24,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.bumptech.glide.Glide;
@@ -261,7 +260,7 @@ public class CreateEventFragment extends DialogFragment {
                 getDialog().hide();
                 DialogPlus dialog = DialogPlus.newDialog(getContext())
                         .setContentHolder(new ListHolder())
-                        .setExpanded(true, 200)
+                        .setExpanded(true, 400)
                         .setPadding(10, 10, 10, 10)
                         .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
                         .setAdapter(new DialogGridItemAdapter(getContext()))
@@ -354,7 +353,6 @@ public class CreateEventFragment extends DialogFragment {
                 setFragmentUIWithEventProps();
             } else {
                 getDialog().show();
-                Toast.makeText(self, "No picture taken!", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == PICK_PHOTO_CODE) {
             if (data != null) {
@@ -370,7 +368,6 @@ public class CreateEventFragment extends DialogFragment {
                 setFragmentUIWithEventProps();
             } else {
                 getDialog().show();
-                Toast.makeText(self, "No picture chosen!", Toast.LENGTH_SHORT).show();
             }
         }
     }

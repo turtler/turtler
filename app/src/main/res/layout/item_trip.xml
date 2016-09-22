@@ -16,6 +16,7 @@
             android:id="@+id/ivCoverImage"
             android:scaleType="centerCrop"
             android:transitionName="cover"
+            android:background="#a1d0ff"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.85"></ImageView>

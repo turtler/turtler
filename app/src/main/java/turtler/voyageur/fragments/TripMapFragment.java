@@ -24,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -184,7 +183,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                 }
             });
         } else {
-            Toast.makeText(getContext(), "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
         }
         return view;
     }
@@ -202,7 +200,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
             map.setOnMapLongClickListener(this);
             TripMapFragmentPermissionsDispatcher.getMyLocationWithCheck(this);
         } else {
-            Toast.makeText(getContext(), "Error - Map was null!!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -312,7 +309,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
             map.animateCamera(cameraUpdate);
         } else {
-            Toast.makeText(getContext(), "Current location was null, enable GPS on emulator!", Toast.LENGTH_SHORT).show();
         }
         startLocationUpdates();
     }
@@ -342,9 +338,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     @Override
     public void onConnectionSuspended(int i) {
         if (i == CAUSE_SERVICE_DISCONNECTED) {
-            Toast.makeText(getContext(), "Disconnected. Please re-connect.", Toast.LENGTH_SHORT).show();
         } else if (i == CAUSE_NETWORK_LOST) {
-            Toast.makeText(getContext(), "Network lost. Please re-connect.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -372,8 +366,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(getContext(),
-                    "Sorry. Location services not available to you", Toast.LENGTH_LONG).show();
         }
     }
 

@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,7 +73,8 @@ public class HomeFragment extends Fragment {
         gridAdapter = new ImageGridAdapter(getContext(), getImages());
         gridView.setAdapter(gridAdapter);
         gridView.setLayoutManager(new StaggeredGridLayoutManager(3, 1));
-        
+        gridView.setForegroundGravity(Gravity.CENTER_VERTICAL);
+
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
