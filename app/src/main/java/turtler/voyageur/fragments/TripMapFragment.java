@@ -144,7 +144,6 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
                     loadMap(map);
                     final GoogleMap gmap = map;
                     ParseQuery<Marker> query = ParseQuery.getQuery("Marker");
-                    query.whereEqualTo("user", ParseUser.getCurrentUser());
                     query.whereEqualTo("trip", ParseObject.createWithoutData(Trip.class, tripId));
                     query.findInBackground(new FindCallback<Marker>() {
                         public void done(List<Marker> markers, ParseException e) {
