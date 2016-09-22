@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.parse.ParseObject;
 
 import java.util.ArrayList;
 
@@ -21,6 +20,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.activities.TripActivity;
+import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.utils.TimeFormatUtils;
 
@@ -49,13 +49,16 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         public void onClick(View view) {
             int position = getLayoutPosition();
 
-            ParseObject trip = mTrips.get(position);
+            Trip trip = mTrips.get(position);
             Intent i = new Intent(mContext, TripActivity.class);
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) mContext, (View)(ivCoverImage), "cover");
 
             Bundle b = options.toBundle();
             b.putString("tripId", trip.getObjectId());
-            b.putString("tripImage", coverPhotoURL);
+            Image coverPhoto = trip.getCoverPhoto();
+            if (coverPhoto != null) {
+                b.putString("tripImage", coverPhoto.getPictureUrl());
+            }
             i.putExtras(b);
             mContext.startActivity(i);
         }
@@ -87,9 +90,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         }
 
 
-        if (t.getCoverPhotoURL() != null) {
-            coverPhotoURL = t.getCoverPhotoURL().getPictureUrl();
-            Glide.with(mContext).load(t.getCoverPhotoURL().getPictureUrl()).into(viewHolder.ivCoverImage);
+        if (t.getCoverPhoto() != null) {
+            coverPhotoURL = t.getCoverPhoto().getPictureUrl();
+            Glide.with(mContext).load(t.getCoverPhoto().getPictureUrl()).into(viewHolder.ivCoverImage);
         }
         else {
 

@@ -57,7 +57,7 @@ public class Trip extends ParseObject {
         return events;
     }
 
-    public Image getCoverPhotoURL() {
+    public Image getCoverPhoto() {
         try {
             return getImageRelation().getQuery().getFirst();
         } catch (ParseException e) {
