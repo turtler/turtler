@@ -5,8 +5,10 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ import turtler.voyageur.models.User;
 public class ProfileFragment extends Fragment implements CreateTripFragment.CreateTripFragmentListener {
     @BindView(R.id.rvTrips) RecyclerView rvTrips;
     @BindView(R.id.fabAddTrip) FloatingActionButton fabAddTrip;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
     ArrayList<Trip> trips;
     TripAdapter tripAdapter;
 
@@ -49,6 +52,11 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this, view);
+
+        AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
+        parentActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        parentActivity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         trips = new ArrayList<>();
         tripAdapter = new TripAdapter(getContext(), trips);
         rvTrips.setAdapter(tripAdapter);

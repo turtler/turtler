@@ -3,9 +3,12 @@ package turtler.voyageur.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,9 @@ import turtler.voyageur.models.Image;
  */
 public class HomeFragment extends Fragment {
     @BindView(R.id.rvImageGrid) RecyclerView gridView;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
+    private static View view;
+
     private ImageGridAdapter gridAdapter;
 
     public static HomeFragment newInstance() {
@@ -46,14 +52,28 @@ public class HomeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-        ButterKnife.bind(this, view);
+
+        if (view != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (parent != null)
+                parent.removeView(view);
+
+            ButterKnife.bind(this, view);
+        }
+        try {
+            view = inflater.inflate(R.layout.fragment_home, container, false);
+            ButterKnife.bind(this, view);
+            AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
+            parentActivity.setSupportActionBar(mToolbar);
+        } catch (InflateException e) {
+        /* map is already there, just return view as it is */
+        }
+
         gridAdapter = new ImageGridAdapter(getContext(), getImages());
         gridView.setAdapter(gridAdapter);
         gridView.setLayoutManager(new StaggeredGridLayoutManager(3, 1));
         
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-                getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
