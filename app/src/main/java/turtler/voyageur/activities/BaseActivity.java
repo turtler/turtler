@@ -75,7 +75,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class BaseActivity extends AppCompatActivity implements CreateEventFragment.CreateEventFragmentListener{
-    @BindView(R.id.toolbar) Toolbar mToolbar;
+    //@BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.bottom_toolbar) ActionMenuView mBottomBar;
 
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
@@ -106,7 +106,6 @@ public class BaseActivity extends AppCompatActivity implements CreateEventFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
         ButterKnife.bind(this);
-        setSupportActionBar(mToolbar);
 
         toCreateEventFragment = false;
         mGoogleApiClient = VoyageurApplication.getGoogleApiHelper().getGoogleApiClient();
