@@ -99,30 +99,26 @@ public class ViewPagerContainerFragment extends Fragment {
             public void done(Trip object, ParseException e) {
                 trip = object;
                 collapsingToolbarLayout.setTitle(trip.getName().toString());
-                trip.getTripCreatorRelation().getQuery().findInBackground(new FindCallback<User>() {
+
+                trip.getTripFriendsRelation().getQuery().findInBackground(new FindCallback<User>() {
                     @Override
                     public void done(List<User> users, ParseException e) {
                         if (users != null) {
                             user = users.get(0);
+                            addUserItems(users);
                             View b = parentActivity.findViewById(R.id.fabAddEvent);
-                            if (user.getEmail().equals(ParseUser.getCurrentUser().getEmail())) {
-                                b.setVisibility(View.VISIBLE);
-                            }
-                            else {
-                                b.setVisibility(View.GONE);
+                            for (int i = 0; i < users.size(); i++) {
+                                User f = users.get(i);
+                                if (f.getEmail().equals(ParseUser.getCurrentUser().getEmail())) {
+                                    b.setVisibility(View.VISIBLE);
+                                    break;
+                                } else {
+                                    b.setVisibility(View.GONE);
+                                }
                             }
                         }
                     }
                 });
-
-                try {
-                    List<User> tripFriends = trip.getTripFriendsRelation().getQuery().find();
-                    if (tripFriends.size() > 0) {
-                        addUserItems(tripFriends);
-                    }
-                } catch (ParseException e1) {
-                    e1.printStackTrace();
-                }
             }
         });
     }

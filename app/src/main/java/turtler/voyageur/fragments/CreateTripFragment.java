@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -162,23 +163,8 @@ public class CreateTripFragment extends DialogFragment {
         if (friendsListIds.size() > 0) {
             for (int i = 0; i < friendsListIds.size(); i++) {
                 String friendId = friendsListIds.get(i);
-                newTrip.addTripFriend(ParseUser.createWithoutData(User.class, friendId));
-                ParseQuery friendQuery = new ParseQuery("User");
-                friendQuery.whereEqualTo("objectId", friendId);
-                friendQuery.findInBackground(new FindCallback() {
-                    @Override
-                    public void done(List objects, ParseException e) {
-                        if (objects != null && objects.size() > 0) {
-                            User friend = (User) objects.get(0);
-                            friend.addTrip(newTrip);
-                        }
-                    }
-
-                    @Override
-                    public void done(Object o, Throwable throwable) {
-
-                    }
-                });
+                User u = ParseUser.createWithoutData(User.class, friendId);
+                newTrip.addTripFriend(u);
             }
         }
         newTrip.saveInBackground(new SaveCallback() {
