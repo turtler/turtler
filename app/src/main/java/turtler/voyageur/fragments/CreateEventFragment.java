@@ -445,6 +445,7 @@ public class CreateEventFragment extends DialogFragment {
                     parseMarker.setLatitude(mLastLocation.getLatitude());
                     parseMarker.setLongitude(mLastLocation.getLongitude());
                 }
+                newEvent.addFriend(user); //save creator to friends relation
                 for (String friendId : friendsListIds) {
                     User newFriend = ParseObject.createWithoutData(User.class, friendId);
                     newEvent.addFriend(newFriend);

@@ -157,6 +157,7 @@ public class CreateTripFragment extends DialogFragment {
         }
         final User user = (User) User.getCurrentUser();
         newTrip.addTripCreator(user);
+        newTrip.addTripFriend(user);
 
         if (friendsListIds.size() > 0) {
             for (int i = 0; i < friendsListIds.size(); i++) {

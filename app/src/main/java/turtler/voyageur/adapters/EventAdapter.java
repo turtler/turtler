@@ -34,7 +34,6 @@ import turtler.voyageur.R;
 import turtler.voyageur.fragments.TripMapFragment;
 import turtler.voyageur.fragments.ViewPagerContainerFragment;
 import turtler.voyageur.models.Event;
-import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;

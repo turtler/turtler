@@ -1,6 +1,5 @@
 package turtler.voyageur.fragments;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -28,8 +27,6 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.List;
@@ -145,7 +142,7 @@ public class ViewPagerContainerFragment extends Fragment {
         final Menu menu = toolbar.getMenu();
         for (final User friend : tripFriends) {
             final String initials = getInitials(friend.getName());
-            Glide.with(this).load(friend.getPictureUrl()).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>(100, 100) {
+            Glide.with(this).load(friend.getPictureUrl()).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>(80, 80) {
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                     RoundedBitmapDrawable d =
