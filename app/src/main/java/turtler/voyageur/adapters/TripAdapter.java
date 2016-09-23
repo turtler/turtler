@@ -33,8 +33,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     String coverPhotoURL = "http://coverphotosite.com/thumbs/the_great_salt_lake-t1.jpg";
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.ivCoverImage)
-        ImageView ivCoverImage;
+        @BindView(R.id.ivCoverImage) ImageView ivCoverImage;
         @BindView(R.id.tvTripName) TextView tvTripName;
         @BindView(R.id.tvTripDate) TextView tvTripDate;
 
@@ -96,7 +95,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         }
         else {
 
-            Glide.with(mContext).load(coverPhotoURL).into(viewHolder.ivCoverImage);
+            //Glide.with(mContext).load(coverPhotoURL).into(viewHolder.ivCoverImage);
 
         }
 

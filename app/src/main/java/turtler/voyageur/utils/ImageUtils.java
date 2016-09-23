@@ -5,7 +5,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -43,15 +42,12 @@ public class ImageUtils {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    Toast.makeText(context, "Successfully saved image on Parse",
-                            Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e("ERROR", "Failed to save image", e);
                 }
             }
         });
 
-        Toast.makeText(context, lat + "," + lon, Toast.LENGTH_LONG).show();
 
         TransferObserver observer = transferUtility.upload(Constants.BUCKET_NAME, resizedFile.getName(),
                 resizedFile);
@@ -60,7 +56,6 @@ public class ImageUtils {
             @Override
             public void onStateChanged(int i, TransferState transferState) {
                 if (transferState.toString().equals("COMPLETED")) {
-                    Toast.makeText(context, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
                 }
             }
             @Override
@@ -68,7 +63,6 @@ public class ImageUtils {
             }
             @Override
             public void onError(int i, Exception e) {
-                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
         return parseImage;
@@ -95,7 +89,6 @@ public class ImageUtils {
             @Override
             public void onStateChanged(int i, TransferState transferState) {
                 if (transferState.toString().equals("COMPLETED")) {
-                    Toast.makeText(context, "Image uploaded successfully to Amazon S3!", Toast.LENGTH_LONG).show();
                 }
             }
             @Override
@@ -103,7 +96,6 @@ public class ImageUtils {
             }
             @Override
             public void onError(int i, Exception e) {
-                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
         return parseImage;

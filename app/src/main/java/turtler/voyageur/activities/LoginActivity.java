@@ -3,9 +3,7 @@ package turtler.voyageur.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -173,7 +171,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void getUserInfoFromParse() {
         ParseUser parseUser = ParseUser.getCurrentUser();
-        Toast.makeText(LoginActivity.this, "Welcome back " + parseUser.get("name"), Toast.LENGTH_SHORT).show();
         getFriendInfoFromFB(parseUser);
         Intent data = new Intent();
         data.putExtra("user_email", parseUser.getEmail());
