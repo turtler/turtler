@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
@@ -89,6 +91,11 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
     public void onFinishCreateEventDialog(Event event) {
         events.add(0, event);
         eventAdapter.notifyItemInserted(0);
+        ImageView ivCover = (ImageView) getActivity().findViewById(R.id.ivCoverViewPager);
+        if (ivCover.getTag() == null || !ivCover.getTag().equals(1)) {
+            Glide.with(getContext()).load(event.getImageURL()).into(ivCover);
+            ivCover.setTag(1);
+        }
     }
 
     @Override
