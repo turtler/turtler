@@ -31,6 +31,7 @@ import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 import turtler.voyageur.R;
+import turtler.voyageur.fragments.DetailEvent;
 import turtler.voyageur.fragments.TripMapFragment;
 import turtler.voyageur.fragments.ViewPagerContainerFragment;
 import turtler.voyageur.models.Event;
@@ -72,6 +73,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
             FragmentActivity activity = (FragmentActivity)(mContext);
             FragmentManager fm = activity.getSupportFragmentManager();
+            DetailEvent alertDialog = DetailEvent.newInstance(event.getObjectId());
+            alertDialog.show(fm, "fragment_detail_event");
+
+            /*
             ViewPagerContainerFragment vpFrag = (ViewPagerContainerFragment) fm.findFragmentByTag("view_pager");
             try {
                 List<Marker> markers = event.getMarkerParseRelation().getQuery().find();
@@ -87,7 +92,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 

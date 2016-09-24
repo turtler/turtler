@@ -28,13 +28,16 @@ public class ImageUtils {
     public final static String APP_TAG = "VoyageurApp";
 
     public static Image saveImageToParse(final Context context, TransferUtility transferUtility, Location mLastLocation, File resizedFile) {
-        String lat = Double.toString(mLastLocation.getLatitude());
-        String lon = Double.toString(mLastLocation.getLongitude());
         Image parseImage = new Image();
-        ParseGeoPoint geoPoint = new ParseGeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        parseImage.setGeoPoint(geoPoint);
-        parseImage.setLatitude(mLastLocation.getLatitude());
-        parseImage.setLongitude(mLastLocation.getLongitude());
+        if (mLastLocation != null) {
+            String lat = Double.toString(mLastLocation.getLatitude());
+            String lon = Double.toString(mLastLocation.getLongitude());
+            ParseGeoPoint geoPoint = new ParseGeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            parseImage.setGeoPoint(geoPoint);
+            parseImage.setLatitude(mLastLocation.getLatitude());
+            parseImage.setLongitude(mLastLocation.getLongitude());
+        }
+
         parseImage.setPictureUrl(AMAZON_S3_FILE_URL + resizedFile.getName());
         parseImage.setUser((User) ParseUser.getCurrentUser());
 
