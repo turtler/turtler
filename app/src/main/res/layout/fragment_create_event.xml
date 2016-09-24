@@ -37,16 +37,6 @@
         android:layout_below="@+id/ivUploadImage"
         android:layout_alignParentStart="true" />
 
-    <TextView
-        style="@style/EditTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="80dp"
-        android:layout_alignParentStart="true"
-        android:id="@+id/tvFriendsListEvent"
-        android:background="@null"
-        android:layout_below="@+id/etFriendsTripEvent"
-        android:layout_alignParentEnd="true" />
-
     <AutoCompleteTextView
         style="@style/EditTextView"
         android:layout_width="fill_parent"
@@ -56,6 +46,15 @@
         android:hint="Who are you with?"
         android:id="@+id/etFriendsTripEvent"
         android:layout_below="@+id/etCaption" />
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_below="@id/etFriendsTripEvent"
+        android:layout_marginTop="10dp"
+        android:id="@+id/llFriendsImages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></LinearLayout>
 
     <ImageView
         android:layout_width="80dp"

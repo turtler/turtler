@@ -12,8 +12,11 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -32,6 +35,7 @@ import turtler.voyageur.models.FriendTripRelation;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import turtler.voyageur.models.UserEntry;
+import turtler.voyageur.utils.CircleTransform;
 import turtler.voyageur.utils.TimeFormatUtils;
 
 /**
@@ -81,14 +85,16 @@ public class CreateTripFragment extends DialogFragment {
                 @Override
                 public void onClick(UserEntry u) {
                     friendsListIds.add(u.objectID);
-                    TextView tvFriendsList = (TextView) view.findViewById(R.id.tvFriendsList);
+                    LinearLayout tvFriendsList = (LinearLayout) view.findViewById(R.id.llFriendsImages);
                     if (tvFriendsList != null) {
-                        String currText = "";
-                        if (tvFriendsList.getText() != "") {
-                            currText = tvFriendsList.getText() + ", ";
-                        }
+                        ImageView image = new ImageView(getContext());
+                        image.setLayoutParams(new android.view.ViewGroup.LayoutParams(80,60));
+                        Glide.with(getContext()).load(u.imgUrl).transform(new CircleTransform(getContext())).into(image);
+                        image.setMaxHeight(20);
+                        image.setMaxWidth(20);
 
-                        tvFriendsList.setText(currText + u.name);
+                        // Adds the view to the layout
+                        tvFriendsList.addView(image);
                     }
                     textView.setText("");
                     textView.dismissDropDown();
