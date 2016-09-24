@@ -468,6 +468,7 @@ public class CreateEventFragment extends DialogFragment {
                 });
             }
         });
+
     }
 
 }

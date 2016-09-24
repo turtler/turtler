@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -91,7 +92,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
         if (t.getCoverPhoto() != null) {
             coverPhotoURL = t.getCoverPhoto().getPictureUrl();
-            Glide.with(mContext).load(t.getCoverPhoto().getPictureUrl()).into(viewHolder.ivCoverImage);
+            // need to use Picasso here bc Glide doesn't support setting tags
+            Picasso.with(mContext).load(t.getCoverPhoto().getPictureUrl()).into(viewHolder.ivCoverImage);
         }
         else {
 

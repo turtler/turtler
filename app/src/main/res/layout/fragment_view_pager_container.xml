@@ -23,7 +23,7 @@
 
 
         <ImageView
-            android:id="@+id/ivCoverImage"
+            android:id="@+id/ivCoverViewPager"
             android:scaleType="centerCrop"
             android:transitionName="cover"
             app:layout_collapseMode="pin"
@@ -61,7 +61,7 @@
     <com.astuetz.PagerSlidingTabStrip
             android:id="@+id/tabStrip"
             app:pstsShouldExpand="true"
-            android:layout_below="@+id/ivCoverImage"
+            android:layout_below="@+id/ivCoverViewPager"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:textSize="14sp"

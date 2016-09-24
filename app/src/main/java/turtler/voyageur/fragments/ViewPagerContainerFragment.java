@@ -1,6 +1,7 @@
 package turtler.voyageur.fragments;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,7 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,10 +80,14 @@ public class ViewPagerContainerFragment extends Fragment {
         });
         pagerAdapter = new TripFragmentPageAdapter(getChildFragmentManager());
         viewPager = (ViewPager) root.findViewById(R.id.viewPager);
-        ivCover = (ImageView) root.findViewById(R.id.ivCoverImage);
+        ivCover = (ImageView) root.findViewById(R.id.ivCoverViewPager);
         tabsStrip = (PagerSlidingTabStrip) root.findViewById(R.id.tabStrip);
         if (tripImage != null) {
-            Glide.with(getContext()).load(tripImage).into(ivCover);
+            ivCover.setTag(1);
+            Picasso.with(getContext()).load(tripImage).into(ivCover);
+        }
+        else {
+            ivCover.setBackgroundColor(Color.parseColor("#a1d0ff"));
         }
 
         viewPager.setAdapter(pagerAdapter);
