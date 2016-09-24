@@ -17,6 +17,7 @@ import com.parse.ParseObject;
 
 import permissions.dispatcher.NeedsPermission;
 import turtler.voyageur.models.Event;
+import turtler.voyageur.models.FriendTripRelation;
 import turtler.voyageur.models.Image;
 import turtler.voyageur.models.Marker;
 import turtler.voyageur.models.Trip;
@@ -56,8 +57,9 @@ public class VoyageurApplication extends Application {
         ParseObject.registerSubclass(Marker.class);
         ParseObject.registerSubclass(User.class);
         ParseObject.registerSubclass(Trip.class);
-        ParseObject.registerSubclass(Event.class);
         ParseObject.registerSubclass(Image.class);
+        ParseObject.registerSubclass(Event.class);
+        ParseObject.registerSubclass(FriendTripRelation.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("voyaging") // should correspond to APP_ID env variable

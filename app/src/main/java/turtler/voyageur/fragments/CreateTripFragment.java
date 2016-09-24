@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -15,9 +14,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -31,6 +28,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import turtler.voyageur.R;
 import turtler.voyageur.adapters.UserItemArrayAdapter;
+import turtler.voyageur.models.FriendTripRelation;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 import turtler.voyageur.models.UserEntry;
@@ -160,17 +158,22 @@ public class CreateTripFragment extends DialogFragment {
         newTrip.addTripCreator(user);
         newTrip.addTripFriend(user);
 
-        if (friendsListIds.size() > 0) {
-            for (int i = 0; i < friendsListIds.size(); i++) {
-                String friendId = friendsListIds.get(i);
-                User u = ParseUser.createWithoutData(User.class, friendId);
-                newTrip.addTripFriend(u);
-            }
-        }
         newTrip.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 user.addTrip(newTrip);
+                FriendTripRelation userTripRelation = new FriendTripRelation(user.getObjectId(), newTrip.getObjectId());
+                userTripRelation.saveInBackground();
+                if (friendsListIds.size() > 0) {
+                    for (int i = 0; i < friendsListIds.size(); i++) {
+                        String friendId = friendsListIds.get(i);
+                        User u = ParseUser.createWithoutData(User.class, friendId);
+                        newTrip.addTripFriend(u);
+                        u.addTrip(newTrip);
+                        FriendTripRelation friendTripRelation = new FriendTripRelation(friendId, newTrip.getObjectId());
+                        friendTripRelation.saveInBackground();
+                    }
+                }
                 CreateTripFragmentListener listener = (CreateTripFragmentListener) getTargetFragment();
                 listener.onFinishCreateTripDialog(newTrip);
                 dismiss();

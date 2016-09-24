@@ -15,18 +15,18 @@ import android.view.ViewGroup;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import turtler.voyageur.R;
 import turtler.voyageur.adapters.TripAdapter;
+import turtler.voyageur.models.FriendTripRelation;
 import turtler.voyageur.models.Trip;
 import turtler.voyageur.models.User;
 
@@ -78,8 +78,8 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
     }
 
     public void populateTrips() {
-        User currentUser;
         if (getArguments() != null && getArguments().containsKey("email")) {
+            //looking at friend's profile
             fabAddTrip.setVisibility(View.GONE);
 
             String email = getArguments().getString("email");
@@ -90,31 +90,43 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
                 public void done(List<User> users, ParseException e) {
                     if (users != null && users.size() > 0) {
                         User user = users.get(0);
-                        ParseRelation<ParseObject> tripRelation = user.getRelation("trips");
-                        loadTrip(tripRelation);
+                        getUserTrips(user.getObjectId());
                     }
                 }
             });
         } else {
+            //looking at own profile
             fabAddTrip.setVisibility(View.VISIBLE);
-            currentUser = (User) ParseUser.getCurrentUser();
-            ParseRelation<ParseObject> tripRelation = currentUser.getRelation("trips");
-            loadTrip(tripRelation);
+            getUserTrips(ParseUser.getCurrentUser().getObjectId());
         }
     }
 
-    public void loadTrip(ParseRelation<ParseObject> tripRelation) {
+    public void getUserTrips(String userId) {
         try {
-            int curSize = tripAdapter.getItemCount();
-            ParseQuery query = tripRelation.getQuery();
-            query.setCachePolicy(ParseQuery.CachePolicy.NETWORK_ELSE_CACHE);
+            ParseQuery<FriendTripRelation> friendTripRelationParseQuery = new ParseQuery<FriendTripRelation>("FriendTripRelation");
+            List<FriendTripRelation> friendTripRelations = friendTripRelationParseQuery
+                    .whereEqualTo("friendId", userId)
+                    .selectKeys(new ArrayList<>(Arrays.asList("tripId")))
+                    .find();
 
-            List<Trip> queriedTrips = query.find();
-            trips.addAll(queriedTrips);
-            tripAdapter.notifyItemRangeInserted(curSize, queriedTrips.size());
+            ArrayList<String> tripIds =  new ArrayList<>();
+            for (FriendTripRelation rel : friendTripRelations) {
+                tripIds.add((String) rel.get("tripId"));
+            }
+            ParseQuery<Trip> tripParseQuery = new ParseQuery<>("Trip");
+            tripParseQuery.whereContainedIn("objectId", tripIds);
+            ArrayList<Trip> trips = (ArrayList<Trip>) tripParseQuery.find();
+            loadUserTrips(trips);
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    public void loadUserTrips(ArrayList<Trip> userTrips) {
+        int curSize = tripAdapter.getItemCount();
+        trips.addAll(userTrips);
+        tripAdapter.notifyItemRangeInserted(curSize, userTrips.size());
     }
 
     private void showCreateTripFragment() {
