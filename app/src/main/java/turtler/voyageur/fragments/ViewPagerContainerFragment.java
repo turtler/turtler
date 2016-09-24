@@ -1,6 +1,7 @@
 package turtler.voyageur.fragments;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -82,6 +83,9 @@ public class ViewPagerContainerFragment extends Fragment {
         tabsStrip = (PagerSlidingTabStrip) root.findViewById(R.id.tabStrip);
         if (tripImage != null) {
             Glide.with(getContext()).load(tripImage).into(ivCover);
+        }
+        else {
+            ivCover.setBackgroundColor(Color.parseColor("#a1d0ff"));
         }
 
         viewPager.setAdapter(pagerAdapter);
