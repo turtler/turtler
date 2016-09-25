@@ -157,30 +157,6 @@ public class DetailEvent extends DialogFragment {
         if (ev.getDate() != null) {
             tvDate.setText(TimeFormatUtils.dateTimeToString(ev.getDate()));
         }
-        /*
-        tvTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewPagerContainerFragment vpFrag = (ViewPagerContainerFragment) getActivity().getSupportFragmentManager().findFragmentByTag("view_pager");
-                dismiss();
-                try {
-                    List<Marker> markers = ev.getMarkerParseRelation().getQuery().find();
-                    if (markers != null) {
-                        Marker m = markers.get(0);
-                        vpFrag.viewPager.setCurrentItem(1);
-                        TripMapFragment mapFrag = (TripMapFragment) vpFrag.viewPager.getAdapter().instantiateItem(vpFrag.viewPager, 1);
-                        GoogleMap map = mapFrag.getMap();
-                        CameraUpdate c = CameraUpdateFactory.newLatLng(new LatLng(m.getLatitudeKey(), m.getLongitudeKey()));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
-                        map.moveCamera(c);
-                        map.animateCamera(zoom);
-                    }
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        });*/
 
         ivUploadImage.setOnClickListener(new View.OnClickListener() {
             @Override

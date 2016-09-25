@@ -63,7 +63,42 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            itemView.setOnClickListener(this);
+            TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            TextView tvCaption = (TextView) itemView.findViewById(R.id.tvCaption);
+            ImageView ivFirstImage = (ImageView) itemView.findViewById(R.id.ivFirstImage);
+            ImageView ivMapMarker = (ImageView) itemView.findViewById(R.id.ivMapMarker);
+
+            ivMapMarker.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    int position = getLayoutPosition();
+                    Event event = mEvents.get(position);
+
+                    FragmentActivity activity = (FragmentActivity)(mContext);
+                    FragmentManager fm = activity.getSupportFragmentManager();
+                    ViewPagerContainerFragment vpFrag = (ViewPagerContainerFragment) fm.findFragmentByTag("view_pager");
+                    try {
+                        List<Marker> markers = event.getMarkerParseRelation().getQuery().find();
+                        if (markers != null) {
+                            Marker m = markers.get(0);
+                            vpFrag.viewPager.setCurrentItem(1);
+                            TripMapFragment mapFrag = (TripMapFragment) vpFrag.viewPager.getAdapter().instantiateItem(vpFrag.viewPager, 1);
+                            GoogleMap map = mapFrag.getMap();
+                            CameraUpdate c = CameraUpdateFactory.newLatLng(new LatLng(m.getLatitudeKey(), m.getLongitudeKey()));
+                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                            map.moveCamera(c);
+                            map.animateCamera(zoom);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            ivFirstImage.setOnClickListener(this);
+            tvCaption.setOnClickListener(this);
+            tvTitle.setOnClickListener(this);
         }
 
         @Override
@@ -76,23 +111,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             DetailEvent alertDialog = DetailEvent.newInstance(event.getObjectId());
             alertDialog.show(fm, "fragment_detail_event");
 
-            /*
-            ViewPagerContainerFragment vpFrag = (ViewPagerContainerFragment) fm.findFragmentByTag("view_pager");
-            try {
-                List<Marker> markers = event.getMarkerParseRelation().getQuery().find();
-                if (markers != null) {
-                    Marker m = markers.get(0);
-                    vpFrag.viewPager.setCurrentItem(1);
-                    TripMapFragment mapFrag = (TripMapFragment) vpFrag.viewPager.getAdapter().instantiateItem(vpFrag.viewPager, 1);
-                    GoogleMap map = mapFrag.getMap();
-                    CameraUpdate c = CameraUpdateFactory.newLatLng(new LatLng(m.getLatitudeKey(), m.getLongitudeKey()));
-                    CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
-                    map.moveCamera(c);
-                    map.animateCamera(zoom);
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }*/
+
         }
     }
 
