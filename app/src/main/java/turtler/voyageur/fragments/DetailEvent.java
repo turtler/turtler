@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.bumptech.glide.Glide;
 import com.daimajia.slider.library.SliderLayout;
+import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -142,6 +143,7 @@ public class DetailEvent extends DialogFragment {
             for (Image image : images) {
                 TextSliderView textSliderView = new TextSliderView(getContext());
                 textSliderView.image(image.getPictureUrl());
+                textSliderView.setScaleType(BaseSliderView.ScaleType.FitCenterCrop);
                 sliderLayout.addSlider(textSliderView);
 
             }
