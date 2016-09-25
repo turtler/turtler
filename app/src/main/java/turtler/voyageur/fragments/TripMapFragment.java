@@ -88,7 +88,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     private LocationRequest mLocationRequest;
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
-    private PolylineOptions rectOptions = new PolylineOptions().width(3).color(Color.rgb(159,159,159));
+    private PolylineOptions rectOptions = new PolylineOptions().width(5).color(Color.rgb(66,165,245));
     private LatLng selectedPoint;
     private User user;
     Bitmap bitmap;
@@ -122,7 +122,7 @@ public class TripMapFragment extends android.support.v4.app.Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bitmap = getBitmap(getContext(), R.drawable.ic_map_marker);
+        bitmap = getBitmap(getContext(), R.mipmap.ic_mapmarker);
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         tripId = getActivity().getIntent().getStringExtra("tripId");
         Trip tripObj = ParseObject.createWithoutData(Trip.class, tripId);
