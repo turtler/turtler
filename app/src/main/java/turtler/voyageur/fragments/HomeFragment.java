@@ -66,6 +66,8 @@ public class HomeFragment extends Fragment {
             ButterKnife.bind(this, view);
             AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
             parentActivity.setSupportActionBar(mToolbar);
+            mToolbar.setNavigationIcon(R.mipmap.ic_whitelogo);
+            parentActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
         } catch (InflateException e) {
         /* map is already there, just return view as it is */
         }
