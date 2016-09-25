@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,9 +52,11 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this, view);
 
+        mToolbar.setNavigationIcon(R.mipmap.ic_whitelogo);
         AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
         parentActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         parentActivity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        parentActivity.getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         trips = new ArrayList<>();
         tripAdapter = new TripAdapter(getContext(), trips);
@@ -90,6 +91,9 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
                 public void done(List<User> users, ParseException e) {
                     if (users != null && users.size() > 0) {
                         User user = users.get(0);
+                        AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
+                        parentActivity.getSupportActionBar().setTitle(user.getName());
+                        mToolbar.setTitle(user.getName());
                         getUserTrips(user.getObjectId());
                     }
                 }
@@ -97,7 +101,11 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
         } else {
             //looking at own profile
             fabAddTrip.setVisibility(View.VISIBLE);
-            getUserTrips(ParseUser.getCurrentUser().getObjectId());
+            User currUser = (User) User.getCurrentUser();
+            AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
+            parentActivity.getSupportActionBar().setTitle(currUser.getName());
+            mToolbar.setTitle(currUser.getName());
+            getUserTrips(currUser.getObjectId());
         }
     }
 
