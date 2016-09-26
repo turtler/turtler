@@ -1,9 +1,13 @@
 package turtler.voyageur.activities;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -32,6 +36,7 @@ import turtler.voyageur.models.User;
 
 public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.login_button) LoginButton loginButton;
+    @BindView(R.id.ivLoginBackground)ImageView ivLoginBackground;
     String email;
     String name;
     JSONObject picture;
@@ -42,7 +47,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-
+        Resources res = this.getResources();
+        Bitmap bitmap = BitmapFactory.decodeResource(res, R.mipmap.ic_loginscreen);
+        ivLoginBackground.setImageBitmap(bitmap);
+        ivLoginBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
