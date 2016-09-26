@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.bumptech.glide.Glide;
@@ -297,6 +298,7 @@ public class DetailEvent extends DialogFragment {
     public void saveEvent() {
         if (image != null) {
             currentEvent.addImage(image);
+            Toast.makeText(getContext(), "Event updated with new image", Toast.LENGTH_SHORT).show();
         }
         currentEvent.saveInBackground(new SaveCallback() {
             @Override
