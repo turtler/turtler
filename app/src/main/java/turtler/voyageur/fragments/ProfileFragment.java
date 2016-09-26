@@ -8,10 +8,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -36,8 +39,12 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
     @BindView(R.id.rvTrips) RecyclerView rvTrips;
     @BindView(R.id.fabAddTrip) FloatingActionButton fabAddTrip;
     @BindView(R.id.toolbar) Toolbar mToolbar;
+    @BindView(R.id.tvToolbarTitle) TextView tvToolbarTitle;
+    @BindView(R.id.scShared) SwitchCompat scShared;
     ArrayList<Trip> trips;
     TripAdapter tripAdapter;
+    User profileUser;
+
 
     public static ProfileFragment newInstance() {
         Bundle args = new Bundle();
@@ -68,20 +75,35 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
             fabAddEvent.setVisibility(View.GONE);
         }
 
+        populateAllTrips();
+        setupListeners();
+        return view;
+    }
+
+    public void setupListeners() {
         fabAddTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showCreateTripFragment();
             }
         });
-        populateTrips();
-        return view;
+        scShared.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    showSharedTrips();
+                } else {
+                    populateAllTrips();
+                }
+            }
+        });
     }
-
-    public void populateTrips() {
+    public void populateAllTrips() {
         if (getArguments() != null && getArguments().containsKey("email")) {
             //looking at friend's profile
             fabAddTrip.setVisibility(View.GONE);
+            scShared.setVisibility(View.VISIBLE);
+            scShared.setChecked(false);
 
             String email = getArguments().getString("email");
             ParseQuery<User> pq = new ParseQuery("_User");
@@ -90,25 +112,46 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
                 @Override
                 public void done(List<User> users, ParseException e) {
                     if (users != null && users.size() > 0) {
-                        User user = users.get(0);
-                        AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
-                        parentActivity.getSupportActionBar().setTitle(user.getName());
-                        mToolbar.setTitle(user.getName());
-                        getUserTrips(user.getObjectId());
+                        profileUser = users.get(0);
+                        tvToolbarTitle.setText(profileUser.getName());
+                        getUserTrips(profileUser.getObjectId());
                     }
                 }
             });
         } else {
             //looking at own profile
             fabAddTrip.setVisibility(View.VISIBLE);
+            scShared.setVisibility(View.INVISIBLE);
             User currUser = (User) User.getCurrentUser();
-            AppCompatActivity parentActivity = (AppCompatActivity) getActivity();
-            parentActivity.getSupportActionBar().setTitle(currUser.getName());
-            mToolbar.setTitle(currUser.getName());
+            tvToolbarTitle.setText(currUser.getName());
             getUserTrips(currUser.getObjectId());
         }
     }
 
+    public void showSharedTrips() {
+        final ArrayList<Trip> sharedTrips = new ArrayList<>();
+        String currentUserId = User.getCurrentUser().getObjectId();
+
+        for (final Trip t : trips) {
+            String tripId = t.getObjectId();
+            ParseQuery<FriendTripRelation> friendTripRelationParseQuery = new ParseQuery("FriendTripRelation");
+            friendTripRelationParseQuery.whereEqualTo("tripId", tripId);
+            friendTripRelationParseQuery.whereEqualTo("friendId", currentUserId);
+            try {
+                if (friendTripRelationParseQuery.getFirst() != null) {
+                    sharedTrips.add(t);
+                };
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        int curSize = trips.size();
+        tripAdapter.notifyItemRangeRemoved(0, curSize);
+
+        trips = sharedTrips;
+        int sharedTripSize = trips.size();
+        tripAdapter.notifyItemRangeInserted(0, sharedTripSize);
+    }
     public void getUserTrips(String userId) {
         try {
             ParseQuery<FriendTripRelation> friendTripRelationParseQuery = new ParseQuery<FriendTripRelation>("FriendTripRelation");
