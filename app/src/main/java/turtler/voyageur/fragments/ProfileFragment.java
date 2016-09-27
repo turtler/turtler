@@ -26,6 +26,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import turtler.voyageur.R;
 import turtler.voyageur.adapters.TripAdapter;
 import turtler.voyageur.models.FriendTripRelation;
@@ -69,6 +70,8 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
         tripAdapter = new TripAdapter(getContext(), trips);
         rvTrips.setAdapter(tripAdapter);
         rvTrips.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvTrips.setItemAnimator(new FadeInAnimator());
+        rvTrips.getItemAnimator().setAddDuration(1100);
 
         FloatingActionButton fabAddEvent = (FloatingActionButton) getActivity().findViewById(R.id.fabAddEvent);
         if (fabAddEvent != null) {
@@ -190,6 +193,7 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
     @Override
     public void onFinishCreateTripDialog(Trip newTrip) {
         trips.add(0, newTrip);
+        rvTrips.scrollToPosition(0);
         tripAdapter.notifyItemInserted(0);
     }
 }
