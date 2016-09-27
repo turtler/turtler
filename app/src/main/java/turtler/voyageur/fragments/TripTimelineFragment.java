@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import turtler.voyageur.R;
 import turtler.voyageur.adapters.EventAdapter;
 import turtler.voyageur.models.Event;
@@ -75,6 +76,8 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
             eventAdapter = new EventAdapter(getContext(), events);
             rvEvents.setAdapter(eventAdapter);
             rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+            rvEvents.setItemAnimator(new FadeInAnimator());
+            rvEvents.getItemAnimator().setAddDuration(1100);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -91,6 +94,7 @@ public class TripTimelineFragment extends android.support.v4.app.Fragment implem
     public void onFinishCreateEventDialog(Event event) {
         events.add(0, event);
         eventAdapter.notifyItemInserted(0);
+        rvEvents.scrollToPosition(0);
         ImageView ivCover = (ImageView) getActivity().findViewById(R.id.ivCoverViewPager);
         if (ivCover.getTag() == null || !ivCover.getTag().equals(1)) {
             Glide.with(getContext()).load(event.getImageURL()).into(ivCover);
