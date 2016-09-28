@@ -148,14 +148,20 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
                 e.printStackTrace();
             }
         }
-        int curSize = trips.size();
+        int curSize = tripAdapter.getItemCount();
+        trips.clear();
         tripAdapter.notifyItemRangeRemoved(0, curSize);
 
-        trips = sharedTrips;
-        int sharedTripSize = trips.size();
+        trips.addAll(sharedTrips);
+        int sharedTripSize = tripAdapter.getItemCount();
         tripAdapter.notifyItemRangeInserted(0, sharedTripSize);
     }
     public void getUserTrips(String userId) {
+        int curSize = tripAdapter.getItemCount();
+        if (curSize > 0) {
+            trips.clear();
+            tripAdapter.notifyItemRangeRemoved(0, curSize);
+        }
         try {
             ParseQuery<FriendTripRelation> friendTripRelationParseQuery = new ParseQuery<FriendTripRelation>("FriendTripRelation");
             List<FriendTripRelation> friendTripRelations = friendTripRelationParseQuery
