@@ -18,6 +18,7 @@ public class TripActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.fade_in_center, R.anim.fade_out_center);
         setContentView(R.layout.activity_trip);
         ButterKnife.bind(this);
         String tripId = getIntent().getStringExtra("tripId");

@@ -13,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
@@ -45,6 +47,11 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
     ArrayList<Trip> trips;
     TripAdapter tripAdapter;
     User profileUser;
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        return enter ? AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_center) : AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_center);
+    }
 
 
     public static ProfileFragment newInstance() {
