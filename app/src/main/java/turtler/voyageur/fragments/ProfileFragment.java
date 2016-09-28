@@ -94,8 +94,10 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_intersectioncircle, getContext().getTheme()));
                     showSharedTrips();
                 } else {
+                    scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_combinecircle, getContext().getTheme()));
                     populateAllTrips();
                 }
             }
@@ -107,6 +109,13 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
             fabAddTrip.setVisibility(View.GONE);
             scShared.setVisibility(View.VISIBLE);
             scShared.setChecked(false);
+
+            if (scShared.isChecked()) {
+                scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_intersectioncircle, getContext().getTheme()));
+            } else {
+                scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_combinecircle, getContext().getTheme()));
+            }
+
 
             String email = getArguments().getString("email");
             ParseQuery<User> pq = new ParseQuery("_User");
@@ -148,14 +157,20 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
                 e.printStackTrace();
             }
         }
-        int curSize = trips.size();
+        int curSize = tripAdapter.getItemCount();
+        trips.clear();
         tripAdapter.notifyItemRangeRemoved(0, curSize);
 
-        trips = sharedTrips;
-        int sharedTripSize = trips.size();
+        trips.addAll(sharedTrips);
+        int sharedTripSize = tripAdapter.getItemCount();
         tripAdapter.notifyItemRangeInserted(0, sharedTripSize);
     }
     public void getUserTrips(String userId) {
+        int curSize = tripAdapter.getItemCount();
+        if (curSize > 0) {
+            trips.clear();
+            tripAdapter.notifyItemRangeRemoved(0, curSize);
+        }
         try {
             ParseQuery<FriendTripRelation> friendTripRelationParseQuery = new ParseQuery<FriendTripRelation>("FriendTripRelation");
             List<FriendTripRelation> friendTripRelations = friendTripRelationParseQuery
