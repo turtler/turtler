@@ -94,8 +94,10 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_intersectioncircle, getContext().getTheme()));
                     showSharedTrips();
                 } else {
+                    scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_combinecircle, getContext().getTheme()));
                     populateAllTrips();
                 }
             }
@@ -107,6 +109,13 @@ public class ProfileFragment extends Fragment implements CreateTripFragment.Crea
             fabAddTrip.setVisibility(View.GONE);
             scShared.setVisibility(View.VISIBLE);
             scShared.setChecked(false);
+
+            if (scShared.isChecked()) {
+                scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_intersectioncircle, getContext().getTheme()));
+            } else {
+                scShared.setThumbDrawable(getResources().getDrawable(R.drawable.ic_combinecircle, getContext().getTheme()));
+            }
+
 
             String email = getArguments().getString("email");
             ParseQuery<User> pq = new ParseQuery("_User");
